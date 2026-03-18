@@ -4,7 +4,6 @@ import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
 import com.ctre.phoenix.led.CANdleConfiguration;
-
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.util.Color;
@@ -19,9 +18,9 @@ public class LEDSubsystem extends SubsystemBase {
   CANdleConfiguration lightConfig = new CANdleConfiguration();
 
   private Color m_currentColor;
-  
+
   private final NetworkTable m_table = NetworkTableInstance.getDefault().getTable("LED");
- 
+
   // Constructor, runs on start up
   public LEDSubsystem() {
     // light configuration
@@ -37,7 +36,8 @@ public class LEDSubsystem extends SubsystemBase {
   }
 
   private void setLEDSInternal() {
-    lights.setLEDs((int)m_currentColor.red, (int)m_currentColor.green, (int)m_currentColor.blue, 0, 0, 13);
+    lights.setLEDs(
+        (int) m_currentColor.red, (int) m_currentColor.green, (int) m_currentColor.blue, 0, 0, 13);
   }
 
   private void changeLightColor(Color newColor) {

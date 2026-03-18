@@ -10,40 +10,27 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.LimelightCommand;
-import frc.robot.commands.RetractCommand;
-import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.FeedSubsystem;
-import frc.robot.subsystems.PneumaticsSubsystem;
-import frc.robot.subsystems.LimeLightSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.Constants.ControlConstants;
-import com.pathplanner.lib.auto.NamedCommands;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -52,30 +39,30 @@ import com.pathplanner.lib.auto.NamedCommands;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-    // declare input devices
-    private final Joystick m_driverLeft;
-    private final Joystick m_driverRight;
-    private final Joystick m_buttonBoard;
-    
-    // Subsystems
-    private final Drive drive;
-    private final SwerveSubsystem m_swerveSubsystem;
-    private final ShooterSubsystem m_shooterSubsystem;
-    private final FeedSubsystem m_feedSubsystem;
-    private final LimeLightSubsystem m_limeLightSubsystem;
-    private final IntakeSubsystem m_intakeSubsystem;
-    private final PneumaticsSubsystem m_PneumaticsSubsystem;
-  
-    // Controller
-    private final CommandXboxController controller = new CommandXboxController(0);
+  // declare input devices
+  private final Joystick m_driverLeft;
+  private final Joystick m_driverRight;
+  private final Joystick m_buttonBoard;
 
-    // Auto chooser
-    // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+  // Subsystems
+  private final Drive drive;
+  // private final ShooterSubsystem m_shooterSubsystem;
+  // private final FeedSubsystem m_feedSubsystem;
+  // private final LimeLightSubsystem m_limeLightSubsystem;
+  // private final IntakeSubsystem m_intakeSubsystem;
+  // private final PneumaticsSubsystem m_PneumaticsSubsystem;
 
-    // NetworkTable for game information
-    private final NetworkTable m_gameInfoTable = NetworkTableInstance.getDefault().getTable("Game Info");
-  
+  // Controller
+  private final CommandXboxController controller = new CommandXboxController(0);
+
+  // Auto chooser
+  // Dashboard inputs
+  private final LoggedDashboardChooser<Command> autoChooser;
+
+  // NetworkTable for game information
+  private final NetworkTable m_gameInfoTable =
+      NetworkTableInstance.getDefault().getTable("Game Info");
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // initialize all objects in the constructor
@@ -85,35 +72,40 @@ public class RobotContainer {
 
     // we pass suppliers to the subsystems for any joystick inputs they need
     // this allows them to get the latest values when needed
-    m_shooterSubsystem = new ShooterSubsystem();
-    m_swerveSubsystem = new SwerveSubsystem();
-    m_intakeSubsystem = new IntakeSubsystem();
-    m_limeLightSubsystem = new LimeLightSubsystem();
-    m_feedSubsystem = new FeedSubsystem();
-    m_PneumaticsSubsystem = new PneumaticsSubsystem();
+    // m_shooterSubsystem = new ShooterSubsystem();
+    // m_swerveSubsystem = new SwerveSubsystem();
+    // m_intakeSubsystem = new IntakeSubsystem();
+    // m_limeLightSubsystem = new LimeLightSubsystem();
+    // m_feedSubsystem = new FeedSubsystem();
+    // m_PneumaticsSubsystem = new PneumaticsSubsystem();
     // m_LEDSubsystem = new LEDSubsystem();
 
-    // NamedCommands.registerCommand("set lights red", m_LEDSubsystem.getChangeLightColorCommand(Color.kRed));// TODO make a turn command
-    NamedCommands.registerCommand("turn 45 CW", m_swerveSubsystem.getTurnByDeltaAngleCommand(-50));
-    NamedCommands.registerCommand("Rev Shooter", m_shooterSubsystem.getRevShooterCommand(.5));
-    NamedCommands.registerCommand("Run Feed", m_feedSubsystem.getFeedCommand());
-    NamedCommands.registerCommand("Extend Climb", m_PneumaticsSubsystem.getInstantClimbExtendCommand());
-    NamedCommands.registerCommand("Retract Climb", m_PneumaticsSubsystem.getInstantClimbRetractCommand());
-    NamedCommands.registerCommand("Zero Gyro", new InstantCommand(() -> m_swerveSubsystem.resetGyro()));
+    // NamedCommands.registerCommand("set lights red",
+    // m_LEDSubsystem.getChangeLightColorCommand(Color.kRed));// TODO make a turn command
+    // NamedCommands.registerCommand("turn 45 CW",
+    // m_swerveSubsystem.getTurnByDeltaAngleCommand(-50));
+    // NamedCommands.registerCommand("Rev Shooter", m_shooterSubsystem.getRevShooterCommand(.5));
+    // NamedCommands.registerCommand("Run Feed", m_feedSubsystem.getFeedCommand());
+    // NamedCommands.registerCommand("Extend Climb",
+    // m_PneumaticsSubsystem.getInstantClimbExtendCommand());
+    // NamedCommands.registerCommand("Retract Climb",
+    // m_PneumaticsSubsystem.getInstantClimbRetractCommand());
+    // NamedCommands.registerCommand("Zero Gyro", new InstantCommand(() ->
+    // m_swerveSubsystem.resetGyro()));
 
     switch (Constants.currentMode) {
-        case REAL:
+      case REAL:
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
-                new GyroIOPigeon2(),
+                new GyroIONavX(),
                 new ModuleIOSpark(0),
                 new ModuleIOSpark(1),
                 new ModuleIOSpark(2),
                 new ModuleIOSpark(3));
         break;
 
-        case SIM:
+      case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -124,7 +116,7 @@ public class RobotContainer {
                 new ModuleIOSim());
         break;
 
-        default:
+      default:
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -163,7 +155,6 @@ public class RobotContainer {
     configureDriveControlsBindings();
   }
 
-
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -175,9 +166,9 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+            () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
+            () -> -m_driverRight.getRawAxis(ControlConstants.kRotateJoystick)));
 
     // Lock to 0° when A button is held
     controller
@@ -222,57 +213,70 @@ public class RobotContainer {
     //   .onFalse(m_LEDSubsystem.getChangeLightColorCommand(Constants.ColorConstants.OFF));
 
     // Trigger on right stick: Reset field oriented zero (reset gyro)
-    new JoystickButton(m_driverLeft, ControlConstants.kResetFieldButton).onTrue(m_swerveSubsystem.getResetGyroCommand());
+    // new JoystickButton(m_driverLeft,
+    // ControlConstants.kResetFieldButton).onTrue(m_swerveSubsystem.getResetGyroCommand());
 
-    // Shooter commands - pinky buttons are hardcoded, rev shoot button is variable
-    m_shooterSubsystem.setDefaultCommand(m_shooterSubsystem.getDefaultCommand());
-    new JoystickButton(m_driverRight, ControlConstants.kRevShootButton)
-      .whileTrue(m_shooterSubsystem.getRevShooterVariableCommand())
-      .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()); // Reset to 50% on release
-    new JoystickButton(m_driverRight, ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65)); // Hardcoded 65%
-    new JoystickButton(m_driverLeft, ControlConstants.kLeftPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.75)); // Hardcoded 75%
-    
-    // Unclog command - runs feed system and fingers in reverse
-    new JoystickButton(m_driverLeft, ControlConstants.kUnclogButton)
-      .whileTrue(m_feedSubsystem.getUnclogFeedCommand());
-    
-    // Button board speed control
-    new JoystickButton(m_buttonBoard, ControlConstants.kShooterSpeedUpButton).onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
-    new JoystickButton(m_buttonBoard, ControlConstants.kShooterSpeedDownButton).onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
+    // // Shooter commands - pinky buttons are hardcoded, rev shoot button is variable
+    // m_shooterSubsystem.setDefaultCommand(m_shooterSubsystem.getDefaultCommand());
+    // new JoystickButton(m_driverRight, ControlConstants.kRevShootButton)
+    //   .whileTrue(m_shooterSubsystem.getRevShooterVariableCommand())
+    //   .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()); // Reset to 50% on release
+    // new JoystickButton(m_driverRight,
+    // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
+    // // Hardcoded 65%
+    // new JoystickButton(m_driverLeft,
+    // ControlConstants.kLeftPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.75));
+    // // Hardcoded 75%
 
-    m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
-    Trigger intakePistonTrigger = new JoystickButton(m_buttonBoard, ControlConstants.kIntakeExtendButton);
-    intakePistonTrigger.onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
-  
-    m_intakeSubsystem.setDefaultCommand(m_intakeSubsystem.getDefaultCommand());
-    new JoystickButton(m_buttonBoard, ControlConstants.kIntakeOnButton).onTrue(m_intakeSubsystem.getIntakeOnCommand());
-    new JoystickButton(m_buttonBoard, ControlConstants.kIntakeOffButton).onTrue(m_intakeSubsystem.getIntakeOffCommand());
-      
-    new JoystickButton(m_buttonBoard, ControlConstants.kIntakeReverseButton)
-      .whileTrue(m_intakeSubsystem.getIntakeOnReversedCommand())
-      .onFalse(m_intakeSubsystem.getIntakeOffCommand());
+    // // Unclog command - runs feed system and fingers in reverse
+    // new JoystickButton(m_driverLeft, ControlConstants.kUnclogButton)
+    //   .whileTrue(m_feedSubsystem.getUnclogFeedCommand());
 
-    Trigger retractIntakeTrigger = new JoystickButton(m_buttonBoard, ControlConstants.kIntakeRetractButton);
-    retractIntakeTrigger.onTrue(new RetractCommand(m_PneumaticsSubsystem, m_intakeSubsystem));
+    // // Button board speed control
+    // new JoystickButton(m_buttonBoard,
+    // ControlConstants.kShooterSpeedUpButton).onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
+    // new JoystickButton(m_buttonBoard,
+    // ControlConstants.kShooterSpeedDownButton).onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
 
-    Trigger climbRetractTrigger = new JoystickButton(m_buttonBoard, ControlConstants.kClimbRetractButton);
-    climbRetractTrigger.onTrue(m_PneumaticsSubsystem.getClimbRetractCommand());
+    // m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
+    // Trigger intakePistonTrigger = new JoystickButton(m_buttonBoard,
+    // ControlConstants.kIntakeExtendButton);
+    // intakePistonTrigger.onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
 
-    Trigger climbExtendTrigger = new JoystickButton(m_buttonBoard, ControlConstants.kClimbExtendButton);
-    climbExtendTrigger.onTrue(m_PneumaticsSubsystem.getClimbExtendCommand());
+    // m_intakeSubsystem.setDefaultCommand(m_intakeSubsystem.getDefaultCommand());
+    // new JoystickButton(m_buttonBoard,
+    // ControlConstants.kIntakeOnButton).onTrue(m_intakeSubsystem.getIntakeOnCommand());
+    // new JoystickButton(m_buttonBoard,
+    // ControlConstants.kIntakeOffButton).onTrue(m_intakeSubsystem.getIntakeOffCommand());
 
-    m_feedSubsystem.setDefaultCommand(m_feedSubsystem.getDefaultCommand());
-    Trigger feedTrigger = new JoystickButton(m_driverRight, ControlConstants.kFeedButton);
-    feedTrigger.whileTrue(m_feedSubsystem.getFeedCommand());
+    // new JoystickButton(m_buttonBoard, ControlConstants.kIntakeReverseButton)
+    //   .whileTrue(m_intakeSubsystem.getIntakeOnReversedCommand())
+    //   .onFalse(m_intakeSubsystem.getIntakeOffCommand());
 
-    m_limeLightSubsystem.setDefaultCommand(m_limeLightSubsystem.getDefaultCommand());
-    Trigger limeTrigger = new JoystickButton(m_driverLeft, ControlConstants.kAutoAimButton);
-    limeTrigger.whileTrue(new LimelightCommand(m_limeLightSubsystem,m_swerveSubsystem));    
+    // Trigger retractIntakeTrigger = new JoystickButton(m_buttonBoard,
+    // ControlConstants.kIntakeRetractButton);
+    // retractIntakeTrigger.onTrue(new RetractCommand(m_PneumaticsSubsystem, m_intakeSubsystem));
+
+    // Trigger climbRetractTrigger = new JoystickButton(m_buttonBoard,
+    // ControlConstants.kClimbRetractButton);
+    // climbRetractTrigger.onTrue(m_PneumaticsSubsystem.getClimbRetractCommand());
+
+    // Trigger climbExtendTrigger = new JoystickButton(m_buttonBoard,
+    // ControlConstants.kClimbExtendButton);
+    // climbExtendTrigger.onTrue(m_PneumaticsSubsystem.getClimbExtendCommand());
+
+    // m_feedSubsystem.setDefaultCommand(m_feedSubsystem.getDefaultCommand());
+    // Trigger feedTrigger = new JoystickButton(m_driverRight, ControlConstants.kFeedButton);
+    // feedTrigger.whileTrue(m_feedSubsystem.getFeedCommand());
+
+    // m_limeLightSubsystem.setDefaultCommand(m_limeLightSubsystem.getDefaultCommand());
+    // Trigger limeTrigger = new JoystickButton(m_driverLeft, ControlConstants.kAutoAimButton);
+    // limeTrigger.whileTrue(new LimelightCommand(m_limeLightSubsystem,m_swerveSubsystem));
   }
 
   /**
-   * Updates the dashboard with current robot status information.
-   * Call this method periodically from Robot.robotPeriodic().
+   * Updates the dashboard with current robot status information. Call this method periodically from
+   * Robot.robotPeriodic().
    */
   public void updateDashboard() {
     m_gameInfoTable.getEntry("Hub Active").setBoolean(isHubActive());
@@ -281,25 +285,26 @@ public class RobotContainer {
   }
 
   /**
-   * Determines if the scoring hub is currently active based on game rules.
-   * The hub activity depends on alliance, game mode, match time, and game data.
-   * 
+   * Determines if the scoring hub is currently active based on game rules. The hub activity depends
+   * on alliance, game mode, match time, and game data.
+   *
    * @return true if the hub is active, false otherwise
    */
   public boolean isHubActive() {
     Optional<Alliance> alliance = DriverStation.getAlliance();
-    
+
     // If we have no alliance, we cannot be enabled, therefore no hub.
     if (alliance.isEmpty()) {
       return false;
     }
-    
+
     // Use the shared logic for our alliance
     return getHubActiveForAlliance(alliance.get());
   }
 
   /**
    * Determines if the Red alliance hub is currently active.
+   *
    * @return true if Red's hub is active, false otherwise
    */
   public boolean isRedHubActive() {
@@ -308,6 +313,7 @@ public class RobotContainer {
 
   /**
    * Determines if the Blue alliance hub is currently active.
+   *
    * @return true if Blue's hub is active, false otherwise
    */
   public boolean isBlueHubActive() {
@@ -316,6 +322,7 @@ public class RobotContainer {
 
   /**
    * Helper method to determine if a specific alliance's hub is active.
+   *
    * @param targetAlliance The alliance to check (Red or Blue)
    * @return true if the specified alliance's hub is active, false otherwise
    */
@@ -324,7 +331,7 @@ public class RobotContainer {
     if (DriverStation.isAutonomousEnabled()) {
       return true;
     }
-    
+
     // If we're not teleop enabled, there is no hub.
     if (!DriverStation.isTeleopEnabled()) {
       return false;
@@ -333,24 +340,24 @@ public class RobotContainer {
     // We're teleop enabled, compute based on game data
     double matchTime = DriverStation.getMatchTime();
     String gameData = DriverStation.getGameSpecificMessage();
-    
+
     // If we have no game data, assume hub is active
     if (gameData.isEmpty()) {
       return true;
     }
-    
+
     // Parse game data to determine which alliance has their hub ACTIVE in shift 1
     boolean redHubActiveInShift1 = false;
     boolean blueHubActiveInShift1 = false;
-    
+
     switch (gameData.charAt(0)) {
       case 'R' -> {
-        redHubActiveInShift1 = false;   // Red inactive in shift 1
-        blueHubActiveInShift1 = true;   // Blue active in shift 1
+        redHubActiveInShift1 = false; // Red inactive in shift 1
+        blueHubActiveInShift1 = true; // Blue active in shift 1
       }
       case 'B' -> {
-        redHubActiveInShift1 = true;    // Red active in shift 1
-        blueHubActiveInShift1 = false;  // Blue inactive in shift 1
+        redHubActiveInShift1 = true; // Red active in shift 1
+        blueHubActiveInShift1 = false; // Blue inactive in shift 1
       }
       default -> {
         // Invalid game data, assume hub is active
@@ -359,8 +366,8 @@ public class RobotContainer {
     }
 
     // Get the hub status for the target alliance in shift 1
-    boolean targetHubActiveInShift1 = (targetAlliance == Alliance.Red) ? 
-                                       redHubActiveInShift1 : blueHubActiveInShift1;
+    boolean targetHubActiveInShift1 =
+        (targetAlliance == Alliance.Red) ? redHubActiveInShift1 : blueHubActiveInShift1;
 
     // Determine which shift we're in based on match time
     // Match time counts DOWN from 135 (teleop start) to 0 (match end)
@@ -385,6 +392,5 @@ public class RobotContainer {
       hubActive = true;
     }
     return hubActive;
-}
-
+  }
 } // End Class

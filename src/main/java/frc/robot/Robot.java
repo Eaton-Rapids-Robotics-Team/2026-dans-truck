@@ -26,7 +26,7 @@ import org.littletonrobotics.urcl.URCL;
  */
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
-    private final RobotContainer m_robotContainer;
+  private final RobotContainer m_robotContainer;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
@@ -105,7 +105,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {}
 
-  /** This autonomous runs the autonomous command selected by your {@link m_RobotContainer} class. */
+  /**
+   * This autonomous runs the autonomous command selected by your {@link m_RobotContainer} class.
+   */
   @Override
   public void autonomousInit() {
     autonomousCommand = m_robotContainer.getAutonomousCommand();
