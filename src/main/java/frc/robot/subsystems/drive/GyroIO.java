@@ -21,4 +21,6 @@ public interface GyroIO {
   }
 
   public default void updateInputs(GyroIOInputs inputs) {}
+
+  abstract Rotation2d getRotation2d();
 }

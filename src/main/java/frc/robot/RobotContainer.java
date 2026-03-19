@@ -24,10 +24,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSpark;
 import java.util.Optional;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -105,22 +103,22 @@ public class RobotContainer {
                 new ModuleIOSpark(3));
         break;
 
-      case SIM:
-        // Sim robot, instantiate physics sim IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim(),
-                new ModuleIOSim());
-        break;
+        // case SIM:
+        //   // Sim robot, instantiate physics sim IO implementations
+        //   drive =
+        //       new Drive(
+        //           new GyroIO() {},
+        //           new ModuleIOSim(),
+        //           new ModuleIOSim(),
+        //           new ModuleIOSim(),
+        //           new ModuleIOSim());
+        //   break;
 
       default:
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
-                new GyroIO() {},
+                new GyroIONavX() {}, // todo fix this
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},

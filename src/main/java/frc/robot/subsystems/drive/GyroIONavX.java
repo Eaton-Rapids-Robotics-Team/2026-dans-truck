@@ -41,4 +41,8 @@ public class GyroIONavX implements GyroIO {
     yawTimestampQueue.clear();
     yawPositionQueue.clear();
   }
+
+  public Rotation2d getRotation2d() {
+    return navX.getRotation2d();
+  }
 }
