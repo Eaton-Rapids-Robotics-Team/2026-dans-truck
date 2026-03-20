@@ -127,7 +127,7 @@ public class Drive extends SubsystemBase {
       module.periodic();
     }
     odometryLock.unlock();
-    // updateOdometry();
+    updateOdometry();
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
