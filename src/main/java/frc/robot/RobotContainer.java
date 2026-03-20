@@ -167,6 +167,16 @@ public class RobotContainer {
             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
             () -> -m_driverRight.getRawAxis(ControlConstants.kRotateJoystick)));
 
+    // Robot-centric drive when button 2 is held (red trigger stage two on left stick)
+    m_driverLeft
+        .button(ControlConstants.kRobotCentricButton)
+        .whileTrue(
+            DriveCommands.joystickDriveRobotCentric(
+                drive,
+                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
+                () -> -m_driverRight.getRawAxis(ControlConstants.kRotateJoystick)));
+
     // Lock to 0° when Trigger is held
     m_driverLeft
         .button(1)

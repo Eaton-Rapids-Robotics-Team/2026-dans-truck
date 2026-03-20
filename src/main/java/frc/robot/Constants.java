@@ -209,6 +209,7 @@ public final class Constants {
     public static final int kAutoAimButton = FlightStickButtons.grayThumbButton;
     public static final int kLeftPinkyButton = FlightStickButtons.grayPinkyButton;
     public static final int kUnclogButton = FlightStickButtons.grayTopButton;
+    public static final int kRobotCentricButton = FlightStickButtons.grayTopButton;
 
     // left controller joystick
     public static final int kMoveXJoystick = 0; // side to side = axis 0
