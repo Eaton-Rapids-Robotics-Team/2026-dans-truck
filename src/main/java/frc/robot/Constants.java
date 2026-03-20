@@ -38,19 +38,19 @@ public final class Constants {
         2 * Math.PI; // 180 degrees per second // TODO
 
     // Distance between front and back wheels on robot (meters)
-    public static final double kTrackWidth = 0.58; // 0.29 * 2
+    public static final double kTrackWidth = .52; // 0.29 * 2
     // Distance between left and right wheels on robot (meters)
     public static final double kWheelBase = 0.58; // 0.29 * 2
 
     // Swerve module positions relative to robot center (meters)
     public static final Translation2d kFrontLeftLocation =
-        new Translation2d(10.625 / 39.3701, 11.444 / 39.3701);
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2);
     public static final Translation2d kFrontRightLocation =
-        new Translation2d(10.625 / 39.3701, -11.444 / 39.3701);
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2);
     public static final Translation2d kBackLeftLocation =
-        new Translation2d(-10.625 / 39.3701, 11.444 / 39.3701);
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2);
     public static final Translation2d kBackRightLocation =
-        new Translation2d(-10.625 / 39.3701, -11.444 / 39.3701);
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2);
 
     public static final SwerveDriveKinematics kDriveKinematics =
         new SwerveDriveKinematics(
@@ -61,7 +61,7 @@ public final class Constants {
   }
 
   public static final class ModuleConstants {
-    public static final int kCurrentLimit = 40;
+    public static final int kCurrentLimit = 60;
 
     public static final double kWheelDiameterMeters = 0.1016; // 4 inches
     public static final double kDrivingMotorReduction =
@@ -102,6 +102,10 @@ public final class Constants {
 
     // Default shooter speed
     public static final double kDefaultShooterSpeed = 0.55;
+
+    public static final double kP = .00025;
+    public static final double kI = 0.00025;
+    public static final double kD = 0.000125;
   }
 
   public static final class AutoConstants {

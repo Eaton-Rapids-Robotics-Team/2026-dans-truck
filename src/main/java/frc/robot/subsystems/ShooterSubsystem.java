@@ -4,6 +4,8 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs;
 import frc.robot.Constants.ShooterConstants;
+import java.util.function.DoubleSupplier;
 
 public class ShooterSubsystem extends SubsystemBase {
   private final SparkFlex m_leftShooter =
@@ -18,10 +21,15 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SparkFlex m_rightShooter =
       new SparkFlex(ShooterConstants.kRightShooterCanId, MotorType.kBrushless);
 
+  private final SparkMax m_dev = new SparkMax(37, MotorType.kBrushless);
+
   private double m_shooterSpeed;
   private double m_variableSpeed = 0.5; // Starting at 50%
 
   private final NetworkTable m_table = NetworkTableInstance.getDefault().getTable("Shooter");
+
+  private final PIDController m_shooterFeedback =
+      new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD);
 
   public ShooterSubsystem() {
     m_shooterSpeed = 0;
@@ -43,6 +51,7 @@ public class ShooterSubsystem extends SubsystemBase {
     m_table.getEntry("Shooter Speed").setDouble(m_shooterSpeed);
     m_table.getEntry("Shooter Running").setBoolean(m_shooterSpeed > 0);
     m_table.getEntry("Variable Shoot Speed").setDouble(m_variableSpeed);
+    m_table.getEntry("Current Rpm").setDouble(m_dev.getEncoder().getVelocity());
   }
 
   public boolean isShooterRunning() {
@@ -172,9 +181,18 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> m_shooterSpeed = -Math.abs(speed), () -> m_shooterSpeed = 0, this);
   }
 
+  public void runPIDcommand(double DesiredSpeed) {
+    setShooterSpeed(m_shooterFeedback.calculate(m_dev.getEncoder().getVelocity(), DesiredSpeed));
+  }
+
+  public Command getRunPIDcommand(DoubleSupplier DesiredSpeed) {
+    return run(() -> runPIDcommand(DesiredSpeed.getAsDouble()));
+  }
+
   @Override
   public void periodic() {
     m_rightShooter.set(m_shooterSpeed);
+    m_dev.set(m_shooterSpeed);
     updateDashboard();
   }
 }

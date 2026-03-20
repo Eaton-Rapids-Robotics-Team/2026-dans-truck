@@ -19,9 +19,11 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -43,7 +45,7 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
-  // private final ShooterSubsystem m_shooterSubsystem;
+  private final ShooterSubsystem m_shooterSubsystem;
   // private final FeedSubsystem m_feedSubsystem;
   // private final LimeLightSubsystem m_limeLightSubsystem;
   // private final IntakeSubsystem m_intakeSubsystem;
@@ -69,7 +71,7 @@ public class RobotContainer {
 
     // we pass suppliers to the subsystems for any joystick inputs they need
     // this allows them to get the latest values when needed
-    // m_shooterSubsystem = new ShooterSubsystem();
+    m_shooterSubsystem = new ShooterSubsystem();
     // m_swerveSubsystem = new SwerveSubsystem();
     // m_intakeSubsystem = new IntakeSubsystem();
     // m_limeLightSubsystem = new LimeLightSubsystem();
@@ -190,7 +192,7 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when B button is pressed
     m_driverLeft
         .button(3)
         .onTrue(
@@ -234,9 +236,12 @@ public class RobotContainer {
 
     // // Shooter commands - pinky buttons are hardcoded, rev shoot button is variable
     // m_shooterSubsystem.setDefaultCommand(m_shooterSubsystem.getDefaultCommand());
-    // new JoystickButton(m_driverRight, ControlConstants.kRevShootButton)
-    //   .whileTrue(m_shooterSubsystem.getRevShooterVariableCommand())
-    //   .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()); // Reset to 50% on release
+
+    // Max velocity is 4000?
+    new JoystickButton(m_driverLeft.getHID(), ControlConstants.kRevShootButton)
+        .whileTrue(m_shooterSubsystem.getRunPIDcommand(() -> 1000))
+        // .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()) // Reset to 50% on release
+        .onFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
     // new JoystickButton(m_driverRight,
     // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
     // // Hardcoded 65%

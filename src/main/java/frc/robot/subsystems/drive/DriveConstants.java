@@ -17,8 +17,8 @@ import edu.wpi.first.math.util.Units;
 public class DriveConstants {
   public static final double maxSpeedMetersPerSec = 15;
   public static final double odometryFrequency = 100.0; // Hz
-  public static final double trackWidth = Units.inchesToMeters(22);
-  public static final double wheelBase = Units.inchesToMeters(20.5);
+  public static final double trackWidth = Units.inchesToMeters(22.75);
+  public static final double wheelBase = Units.inchesToMeters(20.625);
   public static final double driveBaseRadius = Math.hypot(trackWidth / 2.0, wheelBase / 2.0);
   public static final Translation2d[] moduleTranslations =
       new Translation2d[] {
@@ -48,9 +48,10 @@ public class DriveConstants {
   public static final int backRightTurnCanId = 14;
 
   // Drive motor configuration
-  public static final int driveMotorCurrentLimit = 40;
+  public static final int driveMotorCurrentLimit = 60;
   public static final double wheelRadiusMeters = Units.inchesToMeters(1.95);
-  public static final double driveMotorReduction = 38250 / 6480;
+  public static final double driveMotorReduction =
+      (50 * 17 * 45) / (14 * 27 * 15); // L2 Swerve MK4i Drive Ratio
   public static final DCMotor driveGearbox = DCMotor.getNeoVortex(1);
   public static final boolean driveInverted = true;
 
