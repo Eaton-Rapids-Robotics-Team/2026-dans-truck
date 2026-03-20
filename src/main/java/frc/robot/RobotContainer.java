@@ -15,11 +15,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
@@ -38,9 +37,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // declare input devices
-  private final Joystick m_driverLeft;
-  private final Joystick m_driverRight;
-  private final Joystick m_buttonBoard;
+  private final CommandJoystick m_driverLeft;
+  private final CommandJoystick m_driverRight;
+  private final CommandJoystick m_buttonBoard;
 
   // Subsystems
   private final Drive drive;
@@ -51,7 +50,7 @@ public class RobotContainer {
   // private final PneumaticsSubsystem m_PneumaticsSubsystem;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  // private final CommandXboxController controller = new CommandXboxController(0);
 
   // Auto chooser
   // Dashboard inputs
@@ -64,9 +63,9 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // initialize all objects in the constructor
-    m_driverLeft = new Joystick(ControlConstants.kDriverLeftPort);
-    m_driverRight = new Joystick(ControlConstants.kDriverRightPort);
-    m_buttonBoard = new Joystick(ControlConstants.kButtonBoardPort);
+    m_driverLeft = new CommandJoystick(ControlConstants.kDriverLeftPort);
+    m_driverRight = new CommandJoystick(ControlConstants.kDriverRightPort);
+    m_buttonBoard = new CommandJoystick(ControlConstants.kButtonBoardPort);
 
     // we pass suppliers to the subsystems for any joystick inputs they need
     // this allows them to get the latest values when needed
@@ -168,22 +167,22 @@ public class RobotContainer {
             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
             () -> -m_driverRight.getRawAxis(ControlConstants.kRotateJoystick)));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
+    // Lock to 0° when Trigger is held
+    m_driverLeft
+        .button(1)
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
+                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
                 () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
-    controller
-        .b()
+    m_driverLeft
+        .button(3)
         .onTrue(
             Commands.runOnce(
                     () ->
