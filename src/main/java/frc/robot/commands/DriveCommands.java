@@ -20,8 +20,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import java.text.DecimalFormat;
@@ -161,6 +163,90 @@ public class DriveCommands {
               double omega =
                   angleController.calculate(
                       drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
+
+              // Convert to field relative speeds & send command
+              ChassisSpeeds speeds =
+                  new ChassisSpeeds(
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
+                      omega);
+              boolean isFlipped =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get() == Alliance.Red;
+              drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      speeds,
+                      isFlipped
+                          ? drive.getRotation().plus(new Rotation2d(Math.PI))
+                          : drive.getRotation()));
+            },
+            drive)
+
+        // Reset PID controller when command starts
+        .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  /**
+   * Auto-aim command that rotates the robot to face the alliance goal while allowing the driver to
+   * maintain control of translation. Uses field-relative drive with PID-controlled rotation to keep
+   * the robot aimed at the target. The target is the blue goal for blue alliance and red goal for
+   * red alliance.
+   *
+   * @param drive Drive subsystem
+   * @param xSupplier Joystick X axis supplier (forward/backward)
+   * @param ySupplier Joystick Y axis supplier (left/right)
+   * @return Command that aims at alliance goal while driving
+   */
+  public static Command autoAimAtFieldCenter(
+      Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+
+    // Create PID controller for rotation
+    ProfiledPIDController angleController =
+        new ProfiledPIDController(
+            Constants.VisionConstants.kAutoAimKP,
+            0.0,
+            Constants.VisionConstants.kAutoAimKD,
+            new TrapezoidProfile.Constraints(
+                Constants.VisionConstants.kAutoAimMaxVelocity,
+                Constants.VisionConstants.kAutoAimMaxAcceleration));
+    angleController.enableContinuousInput(-Math.PI, Math.PI);
+    angleController.setTolerance(Constants.VisionConstants.kAutoAimTolerance);
+
+    // Construct command
+    return Commands.run(
+            () -> {
+              // Get linear velocity from joysticks
+              Translation2d linearVelocity =
+                  getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+
+              // Get current robot pose
+              Pose2d currentPose = drive.getPose();
+
+              // Determine target based on alliance
+              double targetX;
+              double targetY;
+              boolean isRedAlliance =
+                  DriverStation.getAlliance().isPresent()
+                      && DriverStation.getAlliance().get() == Alliance.Red;
+
+              if (isRedAlliance) {
+                targetX = Constants.VisionConstants.kRedGoalX;
+                targetY = Constants.VisionConstants.kRedGoalY;
+              } else {
+                targetX = Constants.VisionConstants.kBlueGoalX;
+                targetY = Constants.VisionConstants.kBlueGoalY;
+              }
+
+              // Calculate angle to alliance goal
+              double deltaX = targetX - currentPose.getTranslation().getX();
+              double deltaY = targetY - currentPose.getTranslation().getY();
+              double targetAngle = Math.atan2(deltaY, deltaX);
+
+              // Calculate angular speed using PID
+              double omega =
+                  angleController.calculate(currentPose.getRotation().getRadians(), targetAngle);
+
+              SmartDashboard.putNumber("Angle Controller Out", omega);
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
