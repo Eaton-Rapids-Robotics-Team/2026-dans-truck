@@ -206,11 +206,13 @@ public class RobotContainer {
     // Auto-aim at field center when auto-aim button is held
     m_driverLeft
         .button(ControlConstants.kAutoAimButton)
+        .and(drive.getManualTrigger().negate())
         .whileTrue(
             DriveCommands.autoAimAtFieldCenter(
                 drive,
                 () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)));
+                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)))
+        .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 1000));
   }
 
   /**
@@ -242,6 +244,9 @@ public class RobotContainer {
         .whileTrue(m_shooterSubsystem.getRunPIDcommand(() -> 1000))
         // .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()) // Reset to 50% on release
         .onFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
+
+    new JoystickButton(m_driverRight.getHID(), ControlConstants.kAutoAimButton)
+        .onTrue(drive.getToggleCommand());
     // new JoystickButton(m_driverRight,
     // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
     // // Hardcoded 65%

@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -315,6 +316,20 @@ public class Drive extends SubsystemBase {
   /** Returns the maximum angular speed in radians per sec. */
   public double getMaxAngularSpeedRadPerSec() {
     return maxSpeedMetersPerSec / driveBaseRadius;
+  }
+
+  private boolean manualAimOn = false;
+
+  public void toggleManual() {
+    manualAimOn = !manualAimOn;
+  }
+
+  public Command getToggleCommand() {
+    return runOnce(() -> toggleManual());
+  }
+
+  public Trigger getManualTrigger() {
+    return new Trigger(() -> manualAimOn);
   }
 
   public void updateOdometry() {

@@ -225,6 +225,7 @@ public final class Constants {
     public static final int kMaxOverdriveButton = FlightStickButtons.redTriggerStageTwo;
     public static final int kShooterSpeedUpButton = FlightStickButtons.middleStickRight;
     public static final int kShooterSpeedDownButton = FlightStickButtons.middleStickDown;
+    public static final int kManualAimMode = FlightStickButtons.grayThumbButton;
 
     // left controller buttons
     public static final int kFieldToggleButton = FlightStickButtons.redTriggerStageOne;
