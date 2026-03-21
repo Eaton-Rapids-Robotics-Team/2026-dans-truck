@@ -190,7 +190,7 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when B button is pressed
     m_driverLeft
         .button(3)
         .onTrue(
@@ -200,6 +200,15 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
+    // Auto-aim at field center when auto-aim button is held
+    m_driverLeft
+        .button(ControlConstants.kAutoAimButton)
+        .whileTrue(
+            DriveCommands.autoAimAtFieldCenter(
+                drive,
+                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)));
   }
 
   /**

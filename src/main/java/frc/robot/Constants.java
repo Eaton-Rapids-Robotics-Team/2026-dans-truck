@@ -118,6 +118,24 @@ public final class Constants {
                 kMaxSpeedMetersPerSecond, kMaxAccelerationMetersPerSecondSquared);
   }
 
+  public static final class VisionConstants {
+    // Auto-aim PID constants
+    public static final double kAutoAimKP = 10.0;
+    public static final double kAutoAimKD = 0.8;
+    public static final double kAutoAimMaxVelocity = 8.0; // rad/s
+    public static final double kAutoAimMaxAcceleration = 20.0; // rad/s^2
+    public static final double kAutoAimTolerance = 0.05; // radians (~3 degrees)
+
+    // Goal/Target coordinates (in meters, WPILib blue origin)
+    // Reefscape 2025 field is 16.54m x 8.21m
+    // Blue alliance goal/processor is at the blue side (X=0)
+    // Red alliance goal/processor is at the red side (X=16.54m)
+    public static final double kBlueGoalX = 4.27;
+    public static final double kBlueGoalY = 4.105; // Center of field Y
+    public static final double kRedGoalX = 12.27;
+    public static final double kRedGoalY = 4.105; // Center of field Y
+  }
+
   public static final class IntakeConstants {
     public static final int kIntakeCANId = 36;
     public static final double kDefaultIntakeSpeed = 1;
