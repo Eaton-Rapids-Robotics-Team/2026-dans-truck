@@ -205,7 +205,26 @@ public final class Constants {
       public static final int topLeftStickMiddle = 0;
     }
 
-    public static final class ButtonBoardButtons {}
+    public static final class ButtonBoardButtons {
+      public static final int kToggleSwitch = 11;
+      public static final int kButton1x1 = 10;
+      public static final int kButton2x1 = 8;
+      public static final int kButton3x1 = 6;
+      public static final int kButton4x1 = 4;
+      public static final int kButton5x1 = 2;
+      public static final int kButton1x2 = 9;
+      public static final int kButton2x2 = 7;
+      public static final int kButton3x2 = 5;
+      public static final int kButton4x2 = 3;
+      public static final int kButton5x2 = 1;
+      /*
+        button board layout
+        for var names bottom left is 1x1, top left 1x2, top right is 5x2, and bottom right is 5x1
+        Toggle Switch is 11
+        9 7 5 3 1
+        10 8 6 4 2
+      */
+    }
 
     // Joystick axis deadband
     public static final double kJoystickDeadband = 0.05;
@@ -213,28 +232,17 @@ public final class Constants {
     // Slew rate limiter - units per second (1/3 sec from 0 to 1)
     public static final double kSlewRateLimit = 3.0;
 
-    /*
-        button board
-        Toggle Switch is 11
-        9 7 5 3 1
-        10 8 6 4 2
-        The joystick buttons
-        1 = trigger first stage
-        2 = trigger second stage
-        3 = red thumb
-        20 = left gray thumb
-    */
-    public static final int kIntakeExtendButton = FlightStickButtons.middleStickLeft;
-    public static final int kIntakeRetractButton = FlightStickButtons.middleStickMiddle;
-    public static final int kClimbExtendButton = FlightStickButtons.grayPinkyButton;
-    public static final int kClimbRetractButton = FlightStickButtons.middleStickUp;
-    public static final int kIntakeOnButton = FlightStickButtons.redThumbButton;
-    public static final int kIntakeOffButton = FlightStickButtons.redTriggerStageOne;
-    public static final int kIntakeReverseButton = FlightStickButtons.grayTopButton;
-    public static final int kMaxOverdriveButton = FlightStickButtons.redTriggerStageTwo;
-    public static final int kShooterSpeedUpButton = FlightStickButtons.middleStickRight;
-    public static final int kShooterSpeedDownButton = FlightStickButtons.middleStickDown;
-    public static final int kManualAimMode = FlightStickButtons.grayThumbButton;
+    // Button Board Controls
+    public static final int kIntakeExtendButton = ButtonBoardButtons.kButton2x1;
+    public static final int kIntakeRetractButton = ButtonBoardButtons.kButton1x1;
+    public static final int kClimbExtendButton = ButtonBoardButtons.kButton3x2;
+    public static final int kClimbRetractButton = ButtonBoardButtons.kButton3x1;
+    public static final int kIntakeOnButton = ButtonBoardButtons.kButton4x2;
+    public static final int kIntakeOffButton = ButtonBoardButtons.kButton5x2;
+    public static final int kIntakeReverseButton = ButtonBoardButtons.kButton4x1;
+    public static final int kShooterSpeedUpButton = ButtonBoardButtons.kButton2x2;
+    public static final int kShooterSpeedDownButton = ButtonBoardButtons.kButton2x1;
+
 
     // left controller buttons
     public static final int kFieldToggleButton = FlightStickButtons.redTriggerStageOne;
