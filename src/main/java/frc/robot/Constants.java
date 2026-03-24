@@ -148,11 +148,20 @@ public final class Constants {
   }
 
   public static final class FeedConstants {
-    public static final double kDefaultFeedSpeed = .7;
-    public static final double kDefaultFingerSpeed = 1;
-    public static final int kFeedCanId = 35;
-    public static final int kSorterLeftCANId = 33;
-    public static final int kSorterRightCANId = 34;
+    public static final int kIndexerLeftCANId = 0;
+    public static final int kIndexerRightCANId = 0;
+    public static final int kBeltCANId = 0;
+    public static final int kTriggerCANId = 0;
+
+    public static final int kBeltSpeed = 0;
+    public static final int kIndexerSpeed = 0;
+    public static final int kTriggerSpeed = 0;
+
+    // public static final double kDefaultFeedSpeed = .7;
+    // public static final double kDefaultFingerSpeed = 1;
+    // public static final int kFeedCanId = 35;
+    // public static final int kSorterLeftCANId = 33;
+    // public static final int kSorterRightCANId = 34;
     public static final int kCurrent = 30;
   }
 

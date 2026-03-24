@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.FeedSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -46,7 +47,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final ShooterSubsystem m_shooterSubsystem;
-  // private final FeedSubsystem m_feedSubsystem;
+  private final FeedSubsystem m_feedSubsystem;
   // private final LimeLightSubsystem m_limeLightSubsystem;
   // private final IntakeSubsystem m_intakeSubsystem;
   // private final PneumaticsSubsystem m_PneumaticsSubsystem;
@@ -75,7 +76,7 @@ public class RobotContainer {
     // m_swerveSubsystem = new SwerveSubsystem();
     // m_intakeSubsystem = new IntakeSubsystem();
     // m_limeLightSubsystem = new LimeLightSubsystem();
-    // m_feedSubsystem = new FeedSubsystem();
+    m_feedSubsystem = new FeedSubsystem();
     // m_PneumaticsSubsystem = new PneumaticsSubsystem();
     // m_LEDSubsystem = new LEDSubsystem();
 
@@ -242,11 +243,12 @@ public class RobotContainer {
     // Max velocity is 4000?
     new JoystickButton(m_driverLeft.getHID(), ControlConstants.kRevShootButton)
         .whileTrue(m_shooterSubsystem.getRunPIDcommand(() -> 1000))
-        // .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()) // Reset to 50% on release
+        .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()) // Reset to 50% on release
         .onFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
 
-    new JoystickButton(m_driverRight.getHID(), ControlConstants.kAutoAimButton)
-        .onTrue(drive.getToggleCommand());
+    // new JoystickButton(m_driverRight.getHID(),
+    // ControlConstants.kAutoAimButton).onTrue(drive.getToggleCommand());
+    
     // new JoystickButton(m_driverRight,
     // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
     // // Hardcoded 65%

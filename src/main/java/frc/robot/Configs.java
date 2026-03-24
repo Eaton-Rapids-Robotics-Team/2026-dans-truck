@@ -97,16 +97,19 @@ public final class Configs {
   }
 
   public static final class Feed {
-    public static final SparkMaxConfig fingerLeftConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig fingerRightConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig beltConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig indexerLeftConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig indexerRightConfig = new SparkMaxConfig();
 
-    public static final SparkFlexConfig feedConfig = new SparkFlexConfig();
+    public static final SparkFlexConfig triggerConfig = new SparkFlexConfig();
 
     static {
-      fingerLeftConfig.follow(FeedConstants.kSorterRightCANId, true);
-      fingerRightConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
+      indexerLeftConfig.follow(FeedConstants.kIndexerRightCANId, true);
+      indexerRightConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
 
-      feedConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
+      triggerConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
+
+      beltConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
     }
   }
 }
