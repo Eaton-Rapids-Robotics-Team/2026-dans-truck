@@ -19,12 +19,10 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.FeedSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -46,10 +44,10 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
-  private final ShooterSubsystem m_shooterSubsystem;
-  private final FeedSubsystem m_feedSubsystem;
+  // private final ShooterSubsystem m_shooterSubsystem;
+  // private final FeedSubsystem m_feedSubsystem;
   // private final LimeLightSubsystem m_limeLightSubsystem;
-  // private final IntakeSubsystem m_intakeSubsystem;
+  private final IntakeSubsystem m_intakeSubsystem;
   // private final PneumaticsSubsystem m_PneumaticsSubsystem;
 
   // Controller
@@ -72,11 +70,11 @@ public class RobotContainer {
 
     // we pass suppliers to the subsystems for any joystick inputs they need
     // this allows them to get the latest values when needed
-    m_shooterSubsystem = new ShooterSubsystem();
+    // m_shooterSubsystem = new ShooterSubsystem();
     // m_swerveSubsystem = new SwerveSubsystem();
-    // m_intakeSubsystem = new IntakeSubsystem();
+    m_intakeSubsystem = new IntakeSubsystem();
     // m_limeLightSubsystem = new LimeLightSubsystem();
-    m_feedSubsystem = new FeedSubsystem();
+    // m_feedSubsystem = new FeedSubsystem();
     // m_PneumaticsSubsystem = new PneumaticsSubsystem();
     // m_LEDSubsystem = new LEDSubsystem();
 
@@ -212,8 +210,8 @@ public class RobotContainer {
             DriveCommands.autoAimAtFieldCenter(
                 drive,
                 () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)))
-        .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 1000));
+                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)));
+    // .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 1000));
   }
 
   /**
@@ -241,14 +239,28 @@ public class RobotContainer {
     // m_shooterSubsystem.setDefaultCommand(m_shooterSubsystem.getDefaultCommand());
 
     // Max velocity is 4000?
-    new JoystickButton(m_driverLeft.getHID(), ControlConstants.kRevShootButton)
-        .whileTrue(m_shooterSubsystem.getRunPIDcommand(() -> 1000))
-        .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()) // Reset to 50% on release
-        .onFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
+    // m_driverLeft
+    //     .button(ControlConstants.kRevShootButton)
+    //     .whileTrue(m_shooterSubsystem.getRunPIDcommand(() -> 1000))
+    //     .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()) // Reset to 50% on release
+    // .onFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
+
+    m_buttonBoard
+        .button(ControlConstants.kIntakeOnButton)
+        .onTrue(m_intakeSubsystem.getSetIntakeOnCommand());
+
+    m_buttonBoard
+        .button(ControlConstants.kIntakeOffButton)
+        .onTrue(m_intakeSubsystem.getSetIntakeOffCommand());
+
+    m_buttonBoard
+        .button(ControlConstants.kIntakeReverseButton)
+        .whileTrue(m_intakeSubsystem.getSetIntakeReversedCommand())
+        .onFalse(m_intakeSubsystem.getSetIntakeOffCommand());
 
     // new JoystickButton(m_driverRight.getHID(),
     // ControlConstants.kAutoAimButton).onTrue(drive.getToggleCommand());
-    
+
     // new JoystickButton(m_driverRight,
     // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
     // // Hardcoded 65%

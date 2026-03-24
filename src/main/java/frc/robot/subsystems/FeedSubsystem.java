@@ -96,11 +96,11 @@ public class FeedSubsystem extends SubsystemBase {
   }
 
   public Command getIndexerCommand() {
-    return runOnce(() -> setBeltSpeed(FeedConstants.kBeltSpeed));
+    return runOnce(() -> setIndexerSpeed(FeedConstants.kIndexerSpeed));
   }
 
   public Command getTriggerCommand() {
-    return runOnce(() -> setBeltSpeed(FeedConstants.kBeltSpeed));
+    return runOnce(() -> setTriggerSpeed(FeedConstants.kTriggerSpeed));
   }
 
   public Command getFeedCommand() {
