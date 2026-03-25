@@ -21,9 +21,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public IntakeSubsystem() {
     m_intake.configure(
-        Configs.Intake.intakeConfig,
-        ResetMode.kResetSafeParameters,
-        PersistMode.kPersistParameters);
+      Configs.Intake.intakeConfig,
+      ResetMode.kResetSafeParameters,
+      PersistMode.kPersistParameters
+    );
     m_intakeSpeed = 0;
     updateDashboard();
   }

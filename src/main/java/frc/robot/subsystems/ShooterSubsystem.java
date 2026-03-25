@@ -21,7 +21,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SparkFlex m_rightShooter =
       new SparkFlex(ShooterConstants.kRightShooterCanId, MotorType.kBrushless);
 
-  private final SparkMax m_dev = new SparkMax(37, MotorType.kBrushless);
+  //private final SparkMax m_dev = new SparkMax(37, MotorType.kBrushless);
 
   private double m_shooterSpeed;
   private double m_variableSpeed = 0.5; // Starting at 50%
@@ -51,7 +51,7 @@ public class ShooterSubsystem extends SubsystemBase {
     m_table.getEntry("Shooter Speed").setDouble(m_shooterSpeed);
     m_table.getEntry("Shooter Running").setBoolean(m_shooterSpeed > 0);
     m_table.getEntry("Variable Shoot Speed").setDouble(m_variableSpeed);
-    m_table.getEntry("Current Rpm").setDouble(m_dev.getEncoder().getVelocity());
+    m_table.getEntry("Current Rpm").setDouble(m_rightShooter.getEncoder().getVelocity());
   }
 
   public boolean isShooterRunning() {
@@ -182,7 +182,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public void runPIDcommand(double DesiredSpeed) {
-    setShooterSpeed(m_shooterFeedback.calculate(m_dev.getEncoder().getVelocity(), DesiredSpeed));
+    setShooterSpeed(m_shooterFeedback.calculate(m_rightShooter.getEncoder().getVelocity(), DesiredSpeed));
   }
 
   public Command getRunPIDcommand(DoubleSupplier DesiredSpeed) {
@@ -192,7 +192,7 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     m_rightShooter.set(m_shooterSpeed);
-    m_dev.set(m_shooterSpeed);
+    // m_rightShooter.set(m_shooterSpeed);
     updateDashboard();
   }
 }

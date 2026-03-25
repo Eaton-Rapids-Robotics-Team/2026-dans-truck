@@ -81,7 +81,7 @@ public final class Configs {
       leftShooterConfig.follow(ShooterConstants.kRightShooterCanId, true);
 
       // Right shooter is the leader - configure as needed
-      rightShooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40).inverted(true);
+      rightShooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40);
     }
   }
 
