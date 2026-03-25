@@ -148,21 +148,21 @@ public final class Constants {
   }
 
   public static final class FeedConstants {
-    public static final int kIndexerLeftCANId = 0;
-    public static final int kIndexerRightCANId = 0;
-    public static final int kBeltCANId = 0;
-    public static final int kTriggerCANId = 0;
+    public static final int kIndexerLeftCANId = 33;
+    public static final int kIndexerRightCANId = 34;
+    public static final int kBeltCANId = 37;
+    public static final int kTriggerCANId = 35;
 
-    public static final int kBeltSpeed = 0;
-    public static final int kIndexerSpeed = 0;
-    public static final int kTriggerSpeed = 0;
+    public static final double kBeltSpeed = 0.25;
+    public static final double kIndexerSpeed = .6;
+    public static final double kTriggerSpeed = .75;
 
     // public static final double kDefaultFeedSpeed = .7;
     // public static final double kDefaultFingerSpeed = 1;
     // public static final int kFeedCanId = 35;
     // public static final int kSorterLeftCANId = 33;
     // public static final int kSorterRightCANId = 34;
-    public static final int kCurrent = 30;
+    public static final int kCurrent = 40;
   }
 
   public static final class ControlConstants {
@@ -247,7 +247,6 @@ public final class Constants {
     // left controller buttons
     public static final int kFieldToggleButton = FlightStickButtons.redTriggerStageOne;
     public static final int kResetFieldButton = FlightStickButtons.redThumbButton;
-    public static final int kAutoAimButton = FlightStickButtons.grayThumbButton;
     public static final int kLeftPinkyButton = FlightStickButtons.grayPinkyButton;
     public static final int kUnclogButton = FlightStickButtons.grayTopButton;
     public static final int kRobotCentricButton = FlightStickButtons.grayTopButton;
@@ -260,6 +259,7 @@ public final class Constants {
     public static final int kRevShootButton = FlightStickButtons.grayThumbButton;
     public static final int kFeedButton = FlightStickButtons.redTriggerStageOne;
     public static final int kRightPinkyButton = FlightStickButtons.grayPinkyButton;
+    public static final int kAutoAimButton = FlightStickButtons.grayThumbButton; // right stick
 
     // right controller joystick
     public static final int kRotateJoystick = 0;

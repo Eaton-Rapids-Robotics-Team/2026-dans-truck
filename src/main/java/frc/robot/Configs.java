@@ -105,11 +105,14 @@ public final class Configs {
 
     static {
       indexerLeftConfig.follow(FeedConstants.kIndexerRightCANId, true);
-      indexerRightConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
+      indexerRightConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent)
+        .inverted(false);
 
-      triggerConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
+      triggerConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent)
+        .inverted(false);
 
-      beltConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
+      beltConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent)
+        .inverted(false);
     }
   }
 }

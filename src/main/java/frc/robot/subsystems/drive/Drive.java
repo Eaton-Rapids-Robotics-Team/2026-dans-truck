@@ -318,18 +318,18 @@ public class Drive extends SubsystemBase {
     return maxSpeedMetersPerSec / driveBaseRadius;
   }
 
-  private boolean manualAimOn = false;
+  private boolean allowAutoAim = true;
 
-  public void toggleManual() {
-    manualAimOn = !manualAimOn;
+  public void toggleAutoAim() {
+    allowAutoAim = !allowAutoAim;
   }
 
-  public Command getToggleCommand() {
-    return runOnce(() -> toggleManual());
+  public Command getToggleAutoAimCommand() {
+    return runOnce(() -> toggleAutoAim());
   }
 
-  public Trigger getManualTrigger() {
-    return new Trigger(() -> manualAimOn);
+  public Trigger getAllowAutoAimTrigger() {
+    return new Trigger(() -> allowAutoAim);
   }
 
   public void updateOdometry() {

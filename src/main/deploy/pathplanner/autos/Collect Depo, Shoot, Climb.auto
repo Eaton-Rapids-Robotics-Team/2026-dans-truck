@@ -54,9 +54,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Extend Climb"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Depo Shoot to Climb"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Retract Climb"
           }
         }
       ]

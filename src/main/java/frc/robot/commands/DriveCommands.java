@@ -197,7 +197,7 @@ public class DriveCommands {
    * @param ySupplier Joystick Y axis supplier (left/right)
    * @return Command that aims at alliance goal while driving
    */
-  public static Command autoAimAtFieldCenter(
+  public static Command autoAimAtHub(
       Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
 
     // Create PID controller for rotation

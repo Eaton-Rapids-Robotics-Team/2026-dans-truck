@@ -18,15 +18,14 @@ public class FeedSubsystem extends SubsystemBase {
       new SparkFlex(FeedConstants.kTriggerCANId, MotorType.kBrushless);
 
   private final SparkMax m_indexerLeft =
-      new SparkMax(/*FeedConstants.kIndexerLeftCANId*/ 40, MotorType.kBrushless);
+      new SparkMax(FeedConstants.kIndexerLeftCANId , MotorType.kBrushless);
   private final SparkMax m_indexerRight =
-      new SparkMax(/*FeedConstants.kIndexerRightCANId*/ 42, MotorType.kBrushless);
+      new SparkMax(FeedConstants.kIndexerRightCANId , MotorType.kBrushless);
   private final SparkMax m_belt =
-      new SparkMax(/*FeedConstants.kBeltCANId*/ 41, MotorType.kBrushless);
+      new SparkMax(FeedConstants.kBeltCANId , MotorType.kBrushless);
   private double m_beltSpeed;
   private double m_indexerSpeed;
   private double m_triggerSpeed;
-  private double devSpeed;
   // private double m_feedSpeed;
   // private double m_fingerSpeed;
 
@@ -106,7 +105,7 @@ public class FeedSubsystem extends SubsystemBase {
   public Command getFeedCommand() {
     // return new ParallelCommandGroup().addCommands(getBeltCommand());
     return Commands.parallel(getBeltCommand(), getIndexerCommand(), getTriggerCommand())
-        .finallyDo(() -> getStopFeed());
+      .finallyDo(() -> getStopFeed());
   }
   // public void setFeedSpeed(double newSpeed, double newFeederSpeed) {
   //   // m_feedSpeed = newSpeed;

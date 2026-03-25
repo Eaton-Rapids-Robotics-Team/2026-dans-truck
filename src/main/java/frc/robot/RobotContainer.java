@@ -22,7 +22,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.FeedSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -44,8 +46,8 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
-  // private final ShooterSubsystem m_shooterSubsystem;
-  // private final FeedSubsystem m_feedSubsystem;
+  private final ShooterSubsystem m_shooterSubsystem;
+  private final FeedSubsystem m_feedSubsystem;
   // private final LimeLightSubsystem m_limeLightSubsystem;
   private final IntakeSubsystem m_intakeSubsystem;
   // private final PneumaticsSubsystem m_PneumaticsSubsystem;
@@ -70,11 +72,11 @@ public class RobotContainer {
 
     // we pass suppliers to the subsystems for any joystick inputs they need
     // this allows them to get the latest values when needed
-    // m_shooterSubsystem = new ShooterSubsystem();
+    m_shooterSubsystem = new ShooterSubsystem();
     // m_swerveSubsystem = new SwerveSubsystem();
     m_intakeSubsystem = new IntakeSubsystem();
     // m_limeLightSubsystem = new LimeLightSubsystem();
-    // m_feedSubsystem = new FeedSubsystem();
+    m_feedSubsystem = new FeedSubsystem();
     // m_PneumaticsSubsystem = new PneumaticsSubsystem();
     // m_LEDSubsystem = new LEDSubsystem();
 
@@ -202,16 +204,27 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Auto-aim at field center when auto-aim button is held
-    m_driverLeft
-        .button(ControlConstants.kAutoAimButton)
-        .and(drive.getManualTrigger().negate())
-        .whileTrue(
-            DriveCommands.autoAimAtFieldCenter(
-                drive,
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)));
-    // .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 1000));
+    // Rev shooter button - runs shooter, with optional auto-aim if enabled
+    m_driverLeft.button(ControlConstants.kRevShootButton)
+      .whileTrue(
+        Commands.either(
+          // If auto-aim is enabled, run shooter + auto-aim
+          Commands.parallel(
+            DriveCommands.autoAimAtHub(
+              drive,
+              () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+              () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)
+            ),
+            m_shooterSubsystem.getRunPIDcommand(() -> 4000)
+          ),
+          // Otherwise, just run shooter
+          m_shooterSubsystem.getRunPIDcommand(() -> 4000),
+          // Condition: check if auto-aim is enabled
+          drive.getAllowAutoAimTrigger()
+        )
+      )
+      // Stop shooter when button is released
+      .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
   }
 
   /**
@@ -259,7 +272,7 @@ public class RobotContainer {
         .onFalse(m_intakeSubsystem.getSetIntakeOffCommand());
 
     // new JoystickButton(m_driverRight.getHID(),
-    // ControlConstants.kAutoAimButton).onTrue(drive.getToggleCommand());
+    m_driverRight.button(ControlConstants.kAutoAimButton).onTrue(drive.getToggleAutoAimCommand());
 
     // new JoystickButton(m_driverRight,
     // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
@@ -305,9 +318,8 @@ public class RobotContainer {
     // ControlConstants.kClimbExtendButton);
     // climbExtendTrigger.onTrue(m_PneumaticsSubsystem.getClimbExtendCommand());
 
-    // m_feedSubsystem.setDefaultCommand(m_feedSubsystem.getDefaultCommand());
-    // Trigger feedTrigger = new JoystickButton(m_driverRight, ControlConstants.kFeedButton);
-    // feedTrigger.whileTrue(m_feedSubsystem.getFeedCommand());
+    m_feedSubsystem.setDefaultCommand(m_feedSubsystem.getDefaultCommand());
+    m_driverLeft.button(ControlConstants.kFeedButton).whileTrue(m_feedSubsystem.getFeedCommand());
 
     // m_limeLightSubsystem.setDefaultCommand(m_limeLightSubsystem.getDefaultCommand());
     // Trigger limeTrigger = new JoystickButton(m_driverLeft, ControlConstants.kAutoAimButton);
