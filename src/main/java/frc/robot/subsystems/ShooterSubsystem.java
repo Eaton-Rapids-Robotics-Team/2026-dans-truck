@@ -4,7 +4,6 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -21,7 +20,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SparkFlex m_rightShooter =
       new SparkFlex(ShooterConstants.kRightShooterCanId, MotorType.kBrushless);
 
-  //private final SparkMax m_dev = new SparkMax(37, MotorType.kBrushless);
+  // private final SparkMax m_dev = new SparkMax(37, MotorType.kBrushless);
 
   private double m_shooterSpeed;
   private double m_variableSpeed = 0.5; // Starting at 50%
@@ -181,18 +180,19 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> m_shooterSpeed = -Math.abs(speed), () -> m_shooterSpeed = 0, this);
   }
 
-  public void runPIDcommand(double DesiredSpeed) {
-    setShooterSpeed(m_shooterFeedback.calculate(m_rightShooter.getEncoder().getVelocity(), DesiredSpeed));
+  public void runPIDcommand(double desiredSpeed) {
+    setShooterSpeed(
+      m_shooterFeedback.calculate(m_rightShooter.getEncoder().getVelocity(), desiredSpeed)
+    );
   }
 
-  public Command getRunPIDcommand(DoubleSupplier DesiredSpeed) {
-    return run(() -> runPIDcommand(DesiredSpeed.getAsDouble()));
+  public Command getRunPIDcommand(DoubleSupplier desiredSpeed) {
+    return run(() -> runPIDcommand(desiredSpeed.getAsDouble()));
   }
 
   @Override
   public void periodic() {
     m_rightShooter.set(m_shooterSpeed);
-    // m_rightShooter.set(m_shooterSpeed);
     updateDashboard();
   }
 }

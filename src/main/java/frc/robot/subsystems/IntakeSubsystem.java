@@ -14,17 +14,16 @@ import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
   private final SparkFlex m_intake =
-    new SparkFlex(IntakeConstants.kIntakeCANId, MotorType.kBrushless);
+      new SparkFlex(IntakeConstants.kIntakeCANId, MotorType.kBrushless);
   private double m_intakeSpeed;
 
   private final NetworkTable m_table = NetworkTableInstance.getDefault().getTable("Intake");
 
   public IntakeSubsystem() {
     m_intake.configure(
-      Configs.Intake.intakeConfig,
-      ResetMode.kResetSafeParameters,
-      PersistMode.kPersistParameters
-    );
+        Configs.Intake.intakeConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
     m_intakeSpeed = 0;
     updateDashboard();
   }

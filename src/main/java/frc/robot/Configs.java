@@ -81,7 +81,7 @@ public final class Configs {
       leftShooterConfig.follow(ShooterConstants.kRightShooterCanId, true);
 
       // Right shooter is the leader - configure as needed
-      rightShooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40);
+      rightShooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40).inverted(true);
     }
   }
 
@@ -105,14 +105,20 @@ public final class Configs {
 
     static {
       indexerLeftConfig.follow(FeedConstants.kIndexerRightCANId, true);
-      indexerRightConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent)
-        .inverted(false);
+      indexerRightConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(FeedConstants.kCurrent)
+          .inverted(false);
 
-      triggerConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent)
-        .inverted(false);
+      triggerConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(FeedConstants.kCurrent)
+          .inverted(false);
 
-      beltConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent)
-        .inverted(false);
+      beltConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(FeedConstants.kCurrent)
+          .inverted(false);
     }
   }
 }

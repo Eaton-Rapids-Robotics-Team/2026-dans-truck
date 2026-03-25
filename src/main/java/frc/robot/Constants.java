@@ -103,9 +103,9 @@ public final class Constants {
     // Default shooter speed
     public static final double kDefaultShooterSpeed = 0.55;
 
-    public static final double kP = .00025;
+    public static final double kP = 0.00025;
     public static final double kI = 0.00025;
-    public static final double kD = 0.000125;
+    public static final double kD = 0.000015;
   }
 
   public static final class AutoConstants {
@@ -144,7 +144,7 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final int kIntakeCANId = 36;
     public static final double kDefaultIntakeSpeed = 1;
-    public static final int kCurrent = 30;
+    public static final int kCurrent = 40;
   }
 
   public static final class FeedConstants {
@@ -242,7 +242,6 @@ public final class Constants {
     public static final int kIntakeReverseButton = ButtonBoardButtons.kButton4x1;
     public static final int kShooterSpeedUpButton = ButtonBoardButtons.kButton2x2;
     public static final int kShooterSpeedDownButton = ButtonBoardButtons.kButton2x1;
-
 
     // left controller buttons
     public static final int kFieldToggleButton = FlightStickButtons.redTriggerStageOne;

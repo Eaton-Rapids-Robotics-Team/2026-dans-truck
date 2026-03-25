@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.FeedSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIONavX;
@@ -49,7 +48,7 @@ public class RobotContainer {
   private final ShooterSubsystem m_shooterSubsystem;
   private final FeedSubsystem m_feedSubsystem;
   // private final LimeLightSubsystem m_limeLightSubsystem;
-  private final IntakeSubsystem m_intakeSubsystem;
+  // private final IntakeSubsystem m_intakeSubsystem;
   // private final PneumaticsSubsystem m_PneumaticsSubsystem;
 
   // Controller
@@ -74,7 +73,7 @@ public class RobotContainer {
     // this allows them to get the latest values when needed
     m_shooterSubsystem = new ShooterSubsystem();
     // m_swerveSubsystem = new SwerveSubsystem();
-    m_intakeSubsystem = new IntakeSubsystem();
+    // m_intakeSubsystem = new IntakeSubsystem();
     // m_limeLightSubsystem = new LimeLightSubsystem();
     m_feedSubsystem = new FeedSubsystem();
     // m_PneumaticsSubsystem = new PneumaticsSubsystem();
@@ -181,17 +180,14 @@ public class RobotContainer {
                 () -> -m_driverRight.getRawAxis(ControlConstants.kRotateJoystick)));
 
     // Lock to 0° when Trigger is held
-    m_driverLeft
-        .button(1)
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
-                () -> Rotation2d.kZero));
-
-    // Switch to X pattern when X button is pressed
-    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // m_driverLeft
+    //     .button(1)
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+    //             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
+    //             () -> Rotation2d.kZero));
 
     // Reset gyro to 0° when B button is pressed
     m_driverLeft
@@ -205,26 +201,23 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Rev shooter button - runs shooter, with optional auto-aim if enabled
-    m_driverLeft.button(ControlConstants.kRevShootButton)
-      .whileTrue(
-        Commands.either(
-          // If auto-aim is enabled, run shooter + auto-aim
-          Commands.parallel(
-            DriveCommands.autoAimAtHub(
-              drive,
-              () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
-              () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)
-            ),
-            m_shooterSubsystem.getRunPIDcommand(() -> 4000)
-          ),
-          // Otherwise, just run shooter
-          m_shooterSubsystem.getRunPIDcommand(() -> 4000),
-          // Condition: check if auto-aim is enabled
-          drive.getAllowAutoAimTrigger()
-        )
-      )
-      // Stop shooter when button is released
-      .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
+    m_driverLeft
+        .button(ControlConstants.kRevShootButton)
+        .whileTrue(
+            Commands.either(
+                // If auto-aim is enabled, run shooter + auto-aim
+                Commands.parallel(
+                    DriveCommands.autoAimAtHub(
+                        drive,
+                        () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+                        () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)),
+                    m_shooterSubsystem.getRunPIDcommand(() -> 4000)),
+                // Otherwise, just run shooter
+                m_shooterSubsystem.getRunPIDcommand(() -> 4000),
+                // Condition: check if auto-aim is enabled
+                drive.getAllowAutoAimTrigger()))
+        // Stop shooter when button is released
+        .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
   }
 
   /**
@@ -258,18 +251,18 @@ public class RobotContainer {
     //     .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()) // Reset to 50% on release
     // .onFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
 
-    m_buttonBoard
-        .button(ControlConstants.kIntakeOnButton)
-        .onTrue(m_intakeSubsystem.getSetIntakeOnCommand());
+    // m_buttonBoard
+    //     .button(ControlConstants.kIntakeOnButton)
+    //     .onTrue(m_intakeSubsystem.getSetIntakeOnCommand());
 
-    m_buttonBoard
-        .button(ControlConstants.kIntakeOffButton)
-        .onTrue(m_intakeSubsystem.getSetIntakeOffCommand());
+    // m_buttonBoard
+    //     .button(ControlConstants.kIntakeOffButton)
+    //     .onTrue(m_intakeSubsystem.getSetIntakeOffCommand());
 
-    m_buttonBoard
-        .button(ControlConstants.kIntakeReverseButton)
-        .whileTrue(m_intakeSubsystem.getSetIntakeReversedCommand())
-        .onFalse(m_intakeSubsystem.getSetIntakeOffCommand());
+    // m_buttonBoard
+    //     .button(ControlConstants.kIntakeReverseButton)
+    //     .whileTrue(m_intakeSubsystem.getSetIntakeReversedCommand())
+    //     .onFalse(m_intakeSubsystem.getSetIntakeOffCommand());
 
     // new JoystickButton(m_driverRight.getHID(),
     m_driverRight.button(ControlConstants.kAutoAimButton).onTrue(drive.getToggleAutoAimCommand());
