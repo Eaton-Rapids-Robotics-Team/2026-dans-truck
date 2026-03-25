@@ -82,6 +82,14 @@ public final class Configs {
 
       // Right shooter is the leader - configure as needed
       rightShooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40).inverted(true);
+
+      // Configure PID for velocity control on the right shooter
+      rightShooterConfig
+          .closedLoop
+          .pid(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD)
+          .iZone(ShooterConstants.kIZone)
+          .outputRange(-1, 1);
+      // Note: Feedforward (kFF) can be tuned separately if needed
     }
   }
 

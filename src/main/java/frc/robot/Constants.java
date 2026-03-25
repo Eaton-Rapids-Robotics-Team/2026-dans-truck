@@ -103,9 +103,12 @@ public final class Constants {
     // Default shooter speed
     public static final double kDefaultShooterSpeed = 0.55;
 
+    // PID Constants for velocity control
     public static final double kP = 0.00025;
     public static final double kI = 0.00025;
     public static final double kD = 0.000015;
+    public static final double kFF = 0.00018; // Feedforward for velocity control (tune this value)
+    public static final double kIZone = 200.0; // Integral zone in RPM
   }
 
   public static final class AutoConstants {

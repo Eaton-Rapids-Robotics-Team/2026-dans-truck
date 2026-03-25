@@ -32,17 +32,17 @@ public class FeedSubsystem extends SubsystemBase {
 
   public FeedSubsystem() {
     m_belt.configure(
-      Configs.Feed.beltConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        Configs.Feed.beltConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_indexerLeft.configure(
-      Configs.Feed.indexerLeftConfig,
-      ResetMode.kResetSafeParameters,
-      PersistMode.kPersistParameters);
+        Configs.Feed.indexerLeftConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
     m_indexerRight.configure(
-      Configs.Feed.indexerRightConfig,
-      ResetMode.kResetSafeParameters,
-      PersistMode.kPersistParameters);
+        Configs.Feed.indexerRightConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
     m_trigger.configure(
-      Configs.Feed.triggerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        Configs.Feed.triggerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // m_feedSpeed = 0;
     // m_feedSpeed = 0;

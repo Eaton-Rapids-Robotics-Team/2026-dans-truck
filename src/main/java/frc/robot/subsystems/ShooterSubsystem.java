@@ -2,9 +2,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,49 +21,62 @@ public class ShooterSubsystem extends SubsystemBase {
   private final SparkFlex m_rightShooter =
       new SparkFlex(ShooterConstants.kRightShooterCanId, MotorType.kBrushless);
 
+  private final SparkClosedLoopController m_shooterController;
+
   // private final SparkMax m_dev = new SparkMax(37, MotorType.kBrushless);
 
-  private double m_shooterSpeed;
+  private double m_desiredVelocityRPM; // Target velocity in RPM
   private double m_variableSpeed = 0.5; // Starting at 50%
 
   private final NetworkTable m_table = NetworkTableInstance.getDefault().getTable("Shooter");
 
-  private final PIDController m_shooterFeedback =
-      new PIDController(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD);
-
   public ShooterSubsystem() {
-    m_shooterSpeed = 0;
+    m_desiredVelocityRPM = 0;
 
     m_leftShooter.configure(
         Configs.Shooter.leftShooterConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
+
     m_rightShooter.configure(
         Configs.Shooter.rightShooterConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
+
+    // Get the closed-loop controller for velocity control
+    m_shooterController = m_rightShooter.getClosedLoopController();
 
     updateDashboard();
   }
 
   /** Updates NetworkTable with current values and reads settable parameters. */
   private void updateDashboard() {
-    m_table.getEntry("Shooter Speed").setDouble(m_shooterSpeed);
-    m_table.getEntry("Shooter Running").setBoolean(m_shooterSpeed > 0);
+    m_table.getEntry("Desired Velocity RPM").setDouble(m_desiredVelocityRPM);
+    m_table.getEntry("Shooter Running").setBoolean(m_desiredVelocityRPM > 0);
     m_table.getEntry("Variable Shoot Speed").setDouble(m_variableSpeed);
-    m_table.getEntry("Current Rpm").setDouble(m_rightShooter.getEncoder().getVelocity());
+    m_table.getEntry("Current RPM").setDouble(m_rightShooter.getEncoder().getVelocity());
   }
 
   public boolean isShooterRunning() {
-    return m_shooterSpeed > 0;
+    return m_desiredVelocityRPM > 0;
   }
 
-  public void setShooterSpeed(double speed) {
-    m_shooterSpeed = speed;
+  /**
+   * Set the desired shooter velocity in RPM.
+   *
+   * @param velocityRPM The target velocity in RPM
+   */
+  public void setShooterVelocity(double velocityRPM) {
+    m_desiredVelocityRPM = velocityRPM;
   }
 
-  public double getShooterSpeed() {
-    return m_shooterSpeed;
+  /**
+   * Get the current desired shooter velocity in RPM.
+   *
+   * @return The desired velocity in RPM
+   */
+  public double getShooterVelocity() {
+    return m_desiredVelocityRPM;
   }
 
   /** Increment the variable speed by 5%, capped at 1.0. */
@@ -94,35 +108,38 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * A factory function that creates a command to set the shooter speed.
+   * A factory function that creates a command to set the shooter velocity.
    *
-   * @param speed The speed to set the shooter to.
-   * @return A Command that sets the shooter speed.
+   * @param velocityRPM The velocity in RPM to set the shooter to.
+   * @return A Command that sets the shooter velocity.
    */
-  public Command getSetShooterSpeedCommand(double speed) {
-    return Commands.runOnce(() -> m_shooterSpeed = speed, this);
+  public Command getSetShooterVelocityCommand(double velocityRPM) {
+    return Commands.runOnce(() -> m_desiredVelocityRPM = velocityRPM, this);
   }
 
   /**
-   * A factory function that creates a command to rev the shooter at a specified speed. Will stop
+   * A factory function that creates a command to rev the shooter at a specified velocity. Will stop
    * the motor when the command ends.
    *
-   * @param speed The speed to run the shooter at (0.0 to 1.0).
-   * @return A Command that revs the shooter at the specified speed.
+   * @param velocityRPM The velocity in RPM to run the shooter at.
+   * @return A Command that revs the shooter at the specified velocity.
    */
-  public Command getRevShooterCommand(double speed) {
-    return Commands.startEnd(() -> m_shooterSpeed = speed, () -> m_shooterSpeed = 0, this);
+  public Command getRevShooterCommand(double velocityRPM) {
+    return Commands.startEnd(
+        () -> m_desiredVelocityRPM = velocityRPM, () -> m_desiredVelocityRPM = 0, this);
   }
 
   /**
-   * A factory function that creates a command to rev the shooter at the variable speed. Will
-   * continuously update to match variable speed changes and stop when the command ends.
+   * A factory function that creates a command to rev the shooter at the variable speed percentage
+   * of max RPM. Will continuously update to match variable speed changes and stop when the command
+   * ends.
    *
    * @return A Command that revs the shooter at the current variable speed.
    */
   public Command getRevShooterVariableCommand() {
-    return Commands.run(() -> m_shooterSpeed = m_variableSpeed, this)
-        .finallyDo(() -> m_shooterSpeed = 0);
+    // Assuming max RPM is around 5000 - adjust as needed
+    return Commands.run(() -> m_desiredVelocityRPM = m_variableSpeed * 5000.0, this)
+        .finallyDo(() -> m_desiredVelocityRPM = 0);
   }
 
   /**
@@ -163,36 +180,62 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command getStopShooterCommand() {
     return Commands.runOnce(
         () -> {
-          m_shooterSpeed = 0;
+          m_desiredVelocityRPM = 0;
         },
         this);
   }
 
   /**
    * A factory function that creates a command to run the shooter in reverse to unclog. Will stop
-   * the motor when the command ends.
+   * the motor when the command ends. Note: Running in reverse uses duty cycle control, not
+   * velocity.
    *
-   * @param speed The speed to run the shooter in reverse (positive value, will be negated).
+   * @param speed The duty cycle speed to run the shooter in reverse (positive value 0-1, will be
+   *     negated).
    * @return A Command that runs the shooter in reverse.
    */
   public Command getUnclogShooterCommand(double speed) {
     return Commands.startEnd(
-        () -> m_shooterSpeed = -Math.abs(speed), () -> m_shooterSpeed = 0, this);
+        () -> {
+          // Use duty cycle control for reverse (set velocity to 0 to disable PID)
+          m_desiredVelocityRPM = 0;
+          m_rightShooter.set(-Math.abs(speed));
+        },
+        () -> m_desiredVelocityRPM = 0,
+        this);
   }
 
-  public void runPIDcommand(double desiredSpeed) {
-    setShooterSpeed(
-      m_shooterFeedback.calculate(m_rightShooter.getEncoder().getVelocity(), desiredSpeed)
-    );
+  /**
+   * Sets the shooter to run at the specified velocity using built-in PID control. This is the
+   * recommended method for normal shooting operations.
+   *
+   * @param desiredVelocityRPM The desired velocity in RPM.
+   */
+  public void setVelocityControl(double desiredVelocityRPM) {
+    m_desiredVelocityRPM = desiredVelocityRPM;
   }
 
-  public Command getRunPIDcommand(DoubleSupplier desiredSpeed) {
-    return run(() -> runPIDcommand(desiredSpeed.getAsDouble()));
+  /**
+   * A factory function that creates a command to run the shooter at a specific velocity. Uses the
+   * built-in SparkFlex PID velocity control for smooth, consistent operation.
+   *
+   * @param desiredVelocityRPM A supplier for the desired velocity in RPM.
+   * @return A Command that runs the shooter at the specified velocity.
+   */
+  public Command getRunPIDcommand(DoubleSupplier desiredVelocityRPM) {
+    return run(() -> setVelocityControl(desiredVelocityRPM.getAsDouble()));
   }
 
   @Override
   public void periodic() {
-    m_rightShooter.set(m_shooterSpeed);
+    // Use velocity control when desired velocity is set, otherwise stop
+    if (m_desiredVelocityRPM != 0) {
+      // Using setReference with ControlType.kVelocity for closed-loop velocity control
+      m_shooterController.setReference(m_desiredVelocityRPM, ControlType.kVelocity);
+    } else {
+      // Stop the motor
+      m_rightShooter.set(0);
+    }
     updateDashboard();
   }
 }

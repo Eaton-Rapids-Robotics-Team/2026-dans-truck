@@ -14,8 +14,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -149,18 +147,9 @@ public class RobotContainer {
     // We separate the bindings configuration into its own method for clarity
     // This is where controls are connected to commands
     configureBindings();
-
-    // Configure the button bindings
-    configureDriveControlsBindings();
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureDriveControlsBindings() {
+  private void configureBindings() {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -200,6 +189,12 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    // Shooter Bindings
+
+    m_driverRight
+        .button(ControlConstants.kAutoAimButton)
+        .onTrue(drive.getToggleAutoAimCommand()); // Toggle Auto Aim
+
     // Rev shooter button - runs shooter, with optional auto-aim if enabled
     m_driverLeft
         .button(ControlConstants.kRevShootButton)
@@ -218,28 +213,6 @@ public class RobotContainer {
                 drive.getAllowAutoAimTrigger()))
         // Stop shooter when button is released
         .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() { // TODO
-    return autoChooser.get();
-  }
-
-  private void configureBindings() {
-    // LED Triggers
-    // m_LEDSubsystem.setDefaultCommand(m_LEDSubsystem.getChangeLightColorCommand(Constants.ColorConstants.OFF));
-    // Trigger inTakeOnTrigger = new Trigger(() -> m_intakeSubsystem.isIntakeRunning());
-    // inTakeOnTrigger
-    //   .whileTrue(m_LEDSubsystem.getChangeLightColorCommand(Constants.ColorConstants.GREEN))
-    //   .onFalse(m_LEDSubsystem.getChangeLightColorCommand(Constants.ColorConstants.OFF));
-
-    // Trigger on right stick: Reset field oriented zero (reset gyro)
-    // new JoystickButton(m_driverLeft,
-    // ControlConstants.kResetFieldButton).onTrue(m_swerveSubsystem.getResetGyroCommand());
 
     // // Shooter commands - pinky buttons are hardcoded, rev shoot button is variable
     // m_shooterSubsystem.setDefaultCommand(m_shooterSubsystem.getDefaultCommand());
@@ -250,6 +223,15 @@ public class RobotContainer {
     //     .whileTrue(m_shooterSubsystem.getRunPIDcommand(() -> 1000))
     //     .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()) // Reset to 50% on release
     // .onFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
+
+    // new JoystickButton(m_driverRight,
+    // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
+    // // Hardcoded 65%
+    // new JoystickButton(m_driverLeft,
+    // ControlConstants.kLeftPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.75));
+    // // Hardcoded 75%
+
+    // Intake & Feed Bindings
 
     // m_buttonBoard
     //     .button(ControlConstants.kIntakeOnButton)
@@ -264,15 +246,7 @@ public class RobotContainer {
     //     .whileTrue(m_intakeSubsystem.getSetIntakeReversedCommand())
     //     .onFalse(m_intakeSubsystem.getSetIntakeOffCommand());
 
-    // new JoystickButton(m_driverRight.getHID(),
-    m_driverRight.button(ControlConstants.kAutoAimButton).onTrue(drive.getToggleAutoAimCommand());
-
-    // new JoystickButton(m_driverRight,
-    // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
-    // // Hardcoded 65%
-    // new JoystickButton(m_driverLeft,
-    // ControlConstants.kLeftPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.75));
-    // // Hardcoded 75%
+    // Climb Bindings
 
     // // Unclog command - runs feed system and fingers in reverse
     // new JoystickButton(m_driverLeft, ControlConstants.kUnclogButton)
@@ -437,5 +411,14 @@ public class RobotContainer {
       hubActive = true;
     }
     return hubActive;
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
   }
 } // End Class
