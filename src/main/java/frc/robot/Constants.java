@@ -160,11 +160,6 @@ public final class Constants {
     public static final double kIndexerSpeed = .6;
     public static final double kTriggerSpeed = .75;
 
-    // public static final double kDefaultFeedSpeed = .7;
-    // public static final double kDefaultFingerSpeed = 1;
-    // public static final int kFeedCanId = 35;
-    // public static final int kSorterLeftCANId = 33;
-    // public static final int kSorterRightCANId = 34;
     public static final int kCurrent = 40;
   }
 

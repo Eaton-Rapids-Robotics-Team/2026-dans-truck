@@ -230,8 +230,8 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
     // Use velocity control when desired velocity is set, otherwise stop
     if (m_desiredVelocityRPM != 0) {
-      // Using setReference with ControlType.kVelocity for closed-loop velocity control
-      m_shooterController.setReference(m_desiredVelocityRPM, ControlType.kVelocity);
+      // Using setSetpoint with ControlType.kVelocity for closed-loop velocity control
+      m_shooterController.setSetpoint(m_desiredVelocityRPM, ControlType.kVelocity);
     } else {
       // Stop the motor
       m_rightShooter.set(0);

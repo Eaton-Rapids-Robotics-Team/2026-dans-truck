@@ -13,9 +13,12 @@ import frc.robot.Configs;
 import frc.robot.Constants.FeedConstants;
 
 public class FeedSubsystem extends SubsystemBase {
-  private final SparkFlex m_trigger = new SparkFlex(FeedConstants.kTriggerCANId, MotorType.kBrushless);
-  private final SparkMax m_indexerLeft = new SparkMax(FeedConstants.kIndexerLeftCANId, MotorType.kBrushless);
-  private final SparkMax m_indexerRight = new SparkMax(FeedConstants.kIndexerRightCANId, MotorType.kBrushless);
+  private final SparkFlex m_trigger =
+      new SparkFlex(FeedConstants.kTriggerCANId, MotorType.kBrushless);
+  private final SparkMax m_indexerLeft =
+      new SparkMax(FeedConstants.kIndexerLeftCANId, MotorType.kBrushless);
+  private final SparkMax m_indexerRight =
+      new SparkMax(FeedConstants.kIndexerRightCANId, MotorType.kBrushless);
   private final SparkMax m_belt = new SparkMax(FeedConstants.kBeltCANId, MotorType.kBrushless);
 
   private double m_beltSpeed = 0;
@@ -26,24 +29,17 @@ public class FeedSubsystem extends SubsystemBase {
 
   public FeedSubsystem() {
     m_belt.configure(
-      Configs.Feed.beltConfig, 
-      ResetMode.kResetSafeParameters, 
-      PersistMode.kPersistParameters
-    );
+        Configs.Feed.beltConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_indexerLeft.configure(
-      Configs.Feed.indexerLeftConfig,
-      ResetMode.kResetSafeParameters,
-      PersistMode.kPersistParameters);
+        Configs.Feed.indexerLeftConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
     m_indexerRight.configure(
-      Configs.Feed.indexerRightConfig,
-      ResetMode.kResetSafeParameters,
-      PersistMode.kPersistParameters
-    );
+        Configs.Feed.indexerRightConfig,
+        ResetMode.kResetSafeParameters,
+        PersistMode.kPersistParameters);
     m_trigger.configure(
-      Configs.Feed.triggerConfig, 
-      ResetMode.kResetSafeParameters, 
-      PersistMode.kPersistParameters
-    );
+        Configs.Feed.triggerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   private void updateDashboard() {
@@ -73,19 +69,18 @@ public class FeedSubsystem extends SubsystemBase {
     m_triggerSpeed = newSpeed;
   }
 
-  
   public Command getBeltCommand() {
     return runOnce(() -> setBeltSpeed(FeedConstants.kBeltSpeed));
   }
-  
+
   public Command getIndexerCommand() {
     return runOnce(() -> setIndexerSpeed(FeedConstants.kIndexerSpeed));
   }
-  
+
   public Command getTriggerCommand() {
     return runOnce(() -> setTriggerSpeed(FeedConstants.kTriggerSpeed));
   }
-  
+
   public void getStopFeed() {
     m_beltSpeed = 0;
     m_indexerSpeed = 0;
@@ -104,9 +99,9 @@ public class FeedSubsystem extends SubsystemBase {
    */
   public Command getFeedCommand() {
     return startEnd(
-      () -> setSpeeds(), // Start: Set speeds when button pressed
-      () -> getStopFeed() // End: Stop when button released
-    );
+        () -> setSpeeds(), // Start: Set speeds when button pressed
+        () -> getStopFeed() // End: Stop when button released
+        );
   }
 
   /**
@@ -116,7 +111,7 @@ public class FeedSubsystem extends SubsystemBase {
   public Command getDefaultCommand() {
     return run(() -> getStopFeed());
   }
-  
+
   public void periodic() {
     m_belt.set(m_beltSpeed);
     m_indexerRight.set(m_indexerSpeed);
