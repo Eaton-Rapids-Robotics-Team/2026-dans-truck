@@ -56,6 +56,8 @@ public class Drive extends SubsystemBase {
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
 
+  private boolean allowAutoAim = true;
+
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleTranslations);
   private Rotation2d rawGyroRotation = Rotation2d.kZero;
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
@@ -129,6 +131,9 @@ public class Drive extends SubsystemBase {
     }
     odometryLock.unlock();
     updateOdometry();
+
+    // Log auto-aim status
+    Logger.recordOutput("Drive/AutoAimEnabled", allowAutoAim);
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
@@ -318,10 +323,9 @@ public class Drive extends SubsystemBase {
     return maxSpeedMetersPerSec / driveBaseRadius;
   }
 
-  private boolean allowAutoAim = true;
-
   public void toggleAutoAim() {
     allowAutoAim = !allowAutoAim;
+    Logger.recordOutput("Drive/AutoAimEnabled", allowAutoAim);
   }
 
   public Command getToggleAutoAimCommand() {
