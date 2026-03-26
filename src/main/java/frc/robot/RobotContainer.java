@@ -39,7 +39,7 @@ public class RobotContainer {
   // declare input devices
   private final CommandJoystick m_driverLeft;
   private final CommandJoystick m_driverRight;
-  // private final CommandJoystick m_buttonBoard;
+  private final CommandJoystick m_buttonBoard;
 
   // Subsystems
   private final Drive drive;
@@ -61,7 +61,7 @@ public class RobotContainer {
     // initialize all objects in the constructor
     m_driverLeft = new CommandJoystick(ControlConstants.kDriverLeftPort);
     m_driverRight = new CommandJoystick(ControlConstants.kDriverRightPort);
-    // m_buttonBoard = new CommandJoystick(ControlConstants.kButtonBoardPort);
+    m_buttonBoard = new CommandJoystick(ControlConstants.kButtonBoardPort);
 
     // we pass suppliers to the subsystems for any joystick inputs they need
     // this allows them to get the latest values when needed
@@ -188,7 +188,7 @@ public class RobotContainer {
         .button(ControlConstants.kAutoAimButton)
         .onTrue(drive.getToggleAutoAimCommand()); // Toggle Auto Aim
 
-    // Rev shooter button - runs shooter, with optional auto-aim if enabled
+    // Rev shooter button - runs shooter at variable target RPM, with optional auto-aim if enabled
     m_driverLeft
         .button(ControlConstants.kRevShootButton)
         .whileTrue(
@@ -199,13 +199,24 @@ public class RobotContainer {
                         drive,
                         () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
                         () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)),
-                    m_shooterSubsystem.getRunPIDcommand(() -> 4000)),
-                // Otherwise, just run shooter
-                m_shooterSubsystem.getRunPIDcommand(() -> 4000),
+                    m_shooterSubsystem.getRevShooterVariableCommand()),
+                // Otherwise, just run shooter at variable target RPM
+                m_shooterSubsystem.getRevShooterVariableCommand(),
                 // Condition: check if auto-aim is enabled
-                drive.getAllowAutoAimTrigger()))
-        // Stop shooter when button is released
-        .whileFalse(m_shooterSubsystem.getRunPIDcommand(() -> 0));
+                drive.getAllowAutoAimTrigger()));
+
+    // Shooter speed adjustment buttons (if you add them to your controller)
+    m_buttonBoard
+        .button(ControlConstants.kShooterSpeedUpButton)
+        .onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
+    m_buttonBoard
+        .button(ControlConstants.kShooterSpeedDownButton)
+        .onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
+    m_driverLeft
+        .button(ControlConstants.kRevShootButton)
+        .onFalse(
+            m_shooterSubsystem
+                .getResetVariableSpeedCommand()); // Reset to default speed when we stop revving
 
     // new JoystickButton(m_driverRight,
     // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));

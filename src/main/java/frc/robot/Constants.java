@@ -103,6 +103,12 @@ public final class Constants {
     // Default shooter speed
     public static final double kDefaultShooterSpeed = 0.55;
 
+    // Variable shooter speed settings
+    public static final double kDefaultTargetRPM = 3000.0; // Default target velocity
+    public static final double kShooterSpeedDelta = 250.0; // RPM change per increment/decrement
+    public static final double kMinTargetRPM = 500.0; // Minimum target velocity
+    public static final double kMaxTargetRPM = 6000.0; // Maximum target velocity
+
     // PID Constants for velocity control
     public static final double kP = 0.0003; // Increased from 0.00025 for better response
     public static final double kI = 0.0; // Start with 0, add if steady-state error exists

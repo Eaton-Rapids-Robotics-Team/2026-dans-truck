@@ -26,7 +26,8 @@ public class ShooterSubsystem extends SubsystemBase {
   // private final SparkMax m_dev = new SparkMax(37, MotorType.kBrushless);
 
   private double m_desiredVelocityRPM; // Target velocity in RPM
-  private double m_variableSpeed = 0.5; // Starting at 50%
+  private double m_variableTargetRPM =
+      ShooterConstants.kDefaultTargetRPM; // User-adjustable target RPM
 
   private final NetworkTable m_table = NetworkTableInstance.getDefault().getTable("Shooter");
 
@@ -53,7 +54,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private void updateDashboard() {
     m_table.getEntry("Desired Velocity RPM").setDouble(m_desiredVelocityRPM);
     m_table.getEntry("Shooter Running").setBoolean(m_desiredVelocityRPM > 0);
-    m_table.getEntry("Variable Shoot Speed").setDouble(m_variableSpeed);
+    m_table.getEntry("Variable Target RPM").setDouble(m_variableTargetRPM);
     m_table.getEntry("Current RPM").setDouble(m_rightShooter.getEncoder().getVelocity());
   }
 
@@ -79,32 +80,45 @@ public class ShooterSubsystem extends SubsystemBase {
     return m_desiredVelocityRPM;
   }
 
-  /** Increment the variable speed by 5%, capped at 1.0. */
-  public void incrementVariableSpeed() {
-    m_variableSpeed = Math.min(1.0, m_variableSpeed + 0.05);
+  /**
+   * Get the current variable target RPM setting.
+   *
+   * @return The current variable target RPM.
+   */
+  public double getVariableTargetRPM() {
+    return m_variableTargetRPM;
   }
 
-  /** Decrement the variable speed by 5%, minimum at 0.0. */
-  public void decrementVariableSpeed() {
-    m_variableSpeed = Math.max(0.0, m_variableSpeed - 0.05);
+  /** Increment the variable target RPM by the configured delta, capped at max RPM. */
+  public void incrementVariableTargetRPM() {
+    m_variableTargetRPM =
+        Math.min(
+            ShooterConstants.kMaxTargetRPM,
+            m_variableTargetRPM + ShooterConstants.kShooterSpeedDelta);
+  }
+
+  /** Decrement the variable target RPM by the configured delta, minimum at min RPM. */
+  public void decrementVariableTargetRPM() {
+    m_variableTargetRPM =
+        Math.max(
+            ShooterConstants.kMinTargetRPM,
+            m_variableTargetRPM - ShooterConstants.kShooterSpeedDelta);
   }
 
   /**
-   * Get the current variable speed setting.
+   * Set the variable target RPM to a specific value.
    *
-   * @return The current variable speed (0.0 to 1.0).
+   * @param targetRPM The target RPM to set (will be clamped between min and max).
    */
-  public double getVariableSpeed() {
-    return m_variableSpeed;
+  public void setVariableTargetRPM(double targetRPM) {
+    m_variableTargetRPM =
+        Math.max(
+            ShooterConstants.kMinTargetRPM, Math.min(ShooterConstants.kMaxTargetRPM, targetRPM));
   }
 
-  /**
-   * Set the variable speed to a specific value.
-   *
-   * @param speed The speed to set (will be clamped between 0.0 and 1.0).
-   */
-  public void setVariableSpeed(double speed) {
-    m_variableSpeed = Math.max(0.0, Math.min(1.0, speed));
+  /** Reset the variable target RPM to the default value. */
+  public void resetVariableTargetRPM() {
+    m_variableTargetRPM = ShooterConstants.kDefaultTargetRPM;
   }
 
   /**
@@ -130,46 +144,44 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * A factory function that creates a command to rev the shooter at the variable speed percentage
-   * of max RPM. Will continuously update to match variable speed changes and stop when the command
-   * ends.
+   * A factory function that creates a command to rev the shooter at the variable target RPM. Will
+   * continuously update to match variable target RPM changes and stop when the command ends.
    *
-   * @return A Command that revs the shooter at the current variable speed.
+   * @return A Command that revs the shooter at the current variable target RPM.
    */
   public Command getRevShooterVariableCommand() {
-    // Assuming max RPM is around 5000 - adjust as needed
-    return Commands.run(() -> m_desiredVelocityRPM = m_variableSpeed * 5000.0, this)
+    return Commands.run(() -> m_desiredVelocityRPM = m_variableTargetRPM, this)
         .finallyDo(() -> m_desiredVelocityRPM = 0);
   }
 
   /**
-   * A factory function that creates a command to increment the variable speed. Does not require the
-   * subsystem, so it won't interrupt the shooter.
+   * A factory function that creates a command to increment the variable target RPM. Does not
+   * require the subsystem, so it won't interrupt the shooter.
    *
-   * @return A Command that increments the variable speed by 5%.
+   * @return A Command that increments the variable target RPM by the configured delta.
    */
   public Command getIncrementSpeedCommand() {
-    return Commands.runOnce(() -> incrementVariableSpeed());
+    return Commands.runOnce(() -> incrementVariableTargetRPM());
   }
 
   /**
-   * A factory function that creates a command to decrement the variable speed. Does not require the
-   * subsystem, so it won't interrupt the shooter.
+   * A factory function that creates a command to decrement the variable target RPM. Does not
+   * require the subsystem, so it won't interrupt the shooter.
    *
-   * @return A Command that decrements the variable speed by 5%.
+   * @return A Command that decrements the variable target RPM by the configured delta.
    */
   public Command getDecrementSpeedCommand() {
-    return Commands.runOnce(() -> decrementVariableSpeed());
+    return Commands.runOnce(() -> decrementVariableTargetRPM());
   }
 
   /**
-   * A factory function that creates a command to reset the variable speed to 50%. Does not require
-   * the subsystem, so it won't interrupt the shooter.
+   * A factory function that creates a command to reset the variable target RPM to the default. Does
+   * not require the subsystem, so it won't interrupt the shooter.
    *
-   * @return A Command that resets the variable speed to 0.5 (50%).
+   * @return A Command that resets the variable target RPM to the default value.
    */
   public Command getResetVariableSpeedCommand() {
-    return Commands.runOnce(() -> setVariableSpeed(0.5));
+    return Commands.runOnce(() -> resetVariableTargetRPM());
   }
 
   /**
