@@ -14,11 +14,11 @@ import frc.robot.Constants.FeedConstants;
 
 public class FeedSubsystem extends SubsystemBase {
   private final SparkFlex m_trigger =
-      new SparkFlex(FeedConstants.kTriggerCANId, MotorType.kBrushless);
+    new SparkFlex(FeedConstants.kTriggerCANId, MotorType.kBrushless);
   private final SparkMax m_indexerLeft =
-      new SparkMax(FeedConstants.kIndexerLeftCANId, MotorType.kBrushless);
+    new SparkMax(FeedConstants.kIndexerLeftCANId, MotorType.kBrushless);
   private final SparkMax m_indexerRight =
-      new SparkMax(FeedConstants.kIndexerRightCANId, MotorType.kBrushless);
+    new SparkMax(FeedConstants.kIndexerRightCANId, MotorType.kBrushless);
   private final SparkMax m_belt = new SparkMax(FeedConstants.kBeltCANId, MotorType.kBrushless);
 
   private double m_beltSpeed = 0;
