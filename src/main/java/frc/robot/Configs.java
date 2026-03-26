@@ -107,6 +107,16 @@ public final class Configs {
           .idleMode(IdleMode.kCoast)
           .smartCurrentLimit(IntakeConstants.kCurrent)
           .inverted(true);
+
+      // Configure PID for velocity control
+      intakeConfig
+          .closedLoop
+          .pid(IntakeConstants.kP, IntakeConstants.kI, IntakeConstants.kD)
+          .iZone(IntakeConstants.kIZone)
+          .outputRange(-1, 1);
+
+      // Configure feedforward for velocity control
+      intakeConfig.closedLoop.feedForward.kV(IntakeConstants.kFF);
     }
   }
 

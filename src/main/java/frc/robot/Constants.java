@@ -160,6 +160,22 @@ public final class Constants {
     public static final int kIntakeCANId = 36;
     public static final double kDefaultIntakeSpeed = 1;
     public static final int kCurrent = 40;
+
+    // Velocity PID control settings
+    // NEO Vortex max free speed is ~6784 RPM
+    public static final double kMaxTargetRPM = 6784.0; // Maximum velocity for NEO Vortex
+    public static final double kDefaultTargetRPM = kMaxTargetRPM * 0.75; // 75% of max = 5088 RPM
+
+    // PID Constants for velocity control
+    public static final double kP = 0.0003; // Proportional gain
+    public static final double kI = 0.0; // Integral gain (start with 0)
+    public static final double kD = 0.0; // Derivative gain (start with 0)
+
+    // Feedforward for velocity control
+    // kFF = 1/max_rpm = 1/6784 ≈ 0.0001474
+    public static final double kFF = 0.0002; // Slightly higher to account for losses
+
+    public static final double kIZone = 200.0; // Integral zone in RPM
   }
 
   public static final class FeedConstants {
