@@ -152,6 +152,9 @@ public class RobotContainer {
             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
             () -> -m_driverRight.getRawAxis(ControlConstants.kRotateJoystick)));
 
+    // Default command for shooter - ensures shooter stops when no button is held
+    m_shooterSubsystem.setDefaultCommand(m_shooterSubsystem.getDefaultCommand());
+
     // Robot-centric drive when button 2 is held (red trigger stage two on left stick)
     m_driverLeft
         .button(ControlConstants.kRobotCentricButton)
@@ -184,6 +187,7 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     // Shooter Bindings
+
     m_driverRight
         .button(ControlConstants.kAutoAimButton)
         .onTrue(drive.getToggleAutoAimCommand()); // Toggle Auto Aim
@@ -205,25 +209,31 @@ public class RobotContainer {
                 // Condition: check if auto-aim is enabled
                 drive.getAllowAutoAimTrigger()));
 
-    // Shooter speed adjustment buttons (if you add them to your controller)
     m_buttonBoard
-        .button(ControlConstants.kShooterSpeedUpButton)
-        .onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
+      .button(ControlConstants.kShooterSpeedUpButton)
+      .onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
     m_buttonBoard
-        .button(ControlConstants.kShooterSpeedDownButton)
-        .onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
+      .button(ControlConstants.kShooterSpeedDownButton)
+      .onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
+
     m_driverLeft
         .button(ControlConstants.kRevShootButton)
         .onFalse(
             m_shooterSubsystem
                 .getResetVariableSpeedCommand()); // Reset to default speed when we stop revving
 
-    // new JoystickButton(m_driverRight,
-    // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
-    // // Hardcoded 65%
-    // new JoystickButton(m_driverLeft,
-    // ControlConstants.kLeftPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.75));
-    // // Hardcoded 75%
+    // Pinky buttons - hardcoded shooter speeds for quick shooting
+    // Left pinky: 75% speed (3750 RPM)
+    m_driverLeft
+      .button(ControlConstants.kLeftPinkyButton)
+      .whileTrue(
+        m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kLeftPinkyShooterRPM));
+
+    // Right pinky: 65% speed (3250 RPM)
+    m_driverRight
+      .button(ControlConstants.kRightPinkyButton)
+      .whileTrue(
+        m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kRightPinkyShooterRPM));
 
     // Button board speed control
 

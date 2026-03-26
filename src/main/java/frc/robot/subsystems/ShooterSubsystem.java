@@ -198,6 +198,16 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
+   * A factory function that creates a default command that keeps the shooter stopped. This runs
+   * continuously as the default command when no other shooter command is active.
+   *
+   * @return A Command that continuously ensures the shooter stays stopped.
+   */
+  public Command getDefaultCommand() {
+    return run(() -> m_desiredVelocityRPM = 0);
+  }
+
+  /**
    * A factory function that creates a command to run the shooter in reverse to unclog. Will stop
    * the motor when the command ends. Note: Running in reverse uses duty cycle control, not
    * velocity.

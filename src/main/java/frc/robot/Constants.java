@@ -272,6 +272,10 @@ public final class Constants {
 
     // right controller joystick
     public static final int kRotateJoystick = 0;
+
+    // Hardcoded shooter speeds (in RPM) for pinky buttons
+    public static final double kLeftPinkyShooterRPM = 3750.0; // 75% of 5000 RPM
+    public static final double kRightPinkyShooterRPM = 3250.0; // 65% of 5000 RPM
   }
 
   public static final class ColorConstants {
