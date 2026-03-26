@@ -91,8 +91,11 @@ public final class Configs {
           .closedLoop
           .pid(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD)
           .iZone(ShooterConstants.kIZone)
-          .outputRange(-1, 1)
-          .velocityFF(ShooterConstants.kFF); // Deprecated but necessary for velocity control
+          .outputRange(-1, 1);
+
+      // Configure feedforward using the newer API
+      // kV is the velocity gain (most important for flywheel velocity control)
+      rightShooterConfig.closedLoop.feedForward.kV(ShooterConstants.kFF);
     }
   }
 
