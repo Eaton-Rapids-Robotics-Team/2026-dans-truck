@@ -182,51 +182,51 @@ public final class Constants {
     public static final int kDriverRightPort = 2;
     public static final int kButtonBoardPort = 3;
 
-    public static final class FlightStickButtons {
-      public static final int redThumbButton = 3;
-      public static final int grayThumbButton = 20;
-      public static final int grayPinkyButton = 5;
-      public static final int grayTopButton = 4;
-      public static final int redTriggerStageOne = 1;
-      public static final int redTriggerStageTwo = 2;
+    private static final class FlightStickButtons {
+      static final int redThumbButton = 3;
+      static final int grayThumbButton = 20;
+      static final int grayPinkyButton = 5;
+      static final int grayTopButton = 4;
+      static final int redTriggerStageOne = 1;
+      static final int redTriggerStageTwo = 2;
 
       // these three buttons do not work
-      public static final int bottomLeftButton = 0;
-      public static final int bottomMiddleButton = 0;
-      public static final int bottomRightButton = 0;
+      static final int bottomLeftButton = 0;
+      static final int bottomMiddleButton = 0;
+      static final int bottomRightButton = 0;
 
-      public static final int topRightStickUp = 11;
-      public static final int topRightStickDown = 13;
-      public static final int topRightStickLeft = 14;
-      public static final int topRightStickRight = 12;
-      public static final int topRightStickMiddle = 15;
+      static final int topRightStickUp = 11;
+      static final int topRightStickDown = 13;
+      static final int topRightStickLeft = 14;
+      static final int topRightStickRight = 12;
+      static final int topRightStickMiddle = 15;
 
-      public static final int middleStickUp = 6;
-      public static final int middleStickDown = 8;
-      public static final int middleStickLeft = 9;
-      public static final int middleStickRight = 7;
-      public static final int middleStickMiddle = 10;
+      static final int middleStickUp = 6;
+      static final int middleStickDown = 8;
+      static final int middleStickLeft = 9;
+      static final int middleStickRight = 7;
+      static final int middleStickMiddle = 10;
 
       // all of these are in the POV section
-      public static final int topLeftStickUp = 0;
-      public static final int topLeftStickDown = 0;
-      public static final int topLeftStickLeft = 0;
-      public static final int topLeftStickRight = 0;
-      public static final int topLeftStickMiddle = 0;
+      static final int topLeftStickUp = 0;
+      static final int topLeftStickDown = 0;
+      static final int topLeftStickLeft = 0;
+      static final int topLeftStickRight = 0;
+      static final int topLeftStickMiddle = 0;
     }
 
-    public static final class ButtonBoardButtons {
-      public static final int kToggleSwitch = 11;
-      public static final int kButton1x1 = 10;
-      public static final int kButton2x1 = 8;
-      public static final int kButton3x1 = 6;
-      public static final int kButton4x1 = 4;
-      public static final int kButton5x1 = 2;
-      public static final int kButton1x2 = 9;
-      public static final int kButton2x2 = 7;
-      public static final int kButton3x2 = 5;
-      public static final int kButton4x2 = 3;
-      public static final int kButton5x2 = 1;
+    private static final class ButtonBoardButtons {
+      static final int kToggleSwitch = 11;
+      static final int kButton1x1 = 10;
+      static final int kButton2x1 = 8;
+      static final int kButton3x1 = 6;
+      static final int kButton4x1 = 4;
+      static final int kButton5x1 = 2;
+      static final int kButton1x2 = 9;
+      static final int kButton2x2 = 7;
+      static final int kButton3x2 = 5;
+      static final int kButton4x2 = 3;
+      static final int kButton5x2 = 1;
       /*
         button board layout
         for var names bottom left is 1x1, top left 1x2, top right is 5x2, and bottom right is 5x1
