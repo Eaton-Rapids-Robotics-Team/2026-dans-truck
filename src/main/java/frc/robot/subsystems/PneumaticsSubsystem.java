@@ -15,9 +15,9 @@ public class PneumaticsSubsystem extends SubsystemBase {
   private final Compressor compressor = new Compressor(2, PneumaticsModuleType.REVPH);
 
   private final DoubleSolenoid m_climbSolenoid =
-      new DoubleSolenoid(2, PneumaticsModuleType.REVPH, 7, 5);
+      new DoubleSolenoid(2, PneumaticsModuleType.REVPH, 0, 1);
   private final DoubleSolenoid m_intakSolenoid =
-      new DoubleSolenoid(2, PneumaticsModuleType.REVPH, 9, 8);
+      new DoubleSolenoid(2, PneumaticsModuleType.REVPH, 15, 14);
 
   // Member variables to store desired solenoid states
   private Value m_desiredClimbState = Value.kOff;

@@ -21,12 +21,14 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.FeedSubsystem;
+import frc.robot.subsystems.PneumaticsSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSpark;
 import java.util.Optional;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -47,7 +49,7 @@ public class RobotContainer {
   private final FeedSubsystem m_feedSubsystem;
   // private final LimeLightSubsystem m_limeLightSubsystem;
   // private final IntakeSubsystem m_intakeSubsystem;
-  // private final PneumaticsSubsystem m_PneumaticsSubsystem;
+  private final PneumaticsSubsystem m_PneumaticsSubsystem;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -70,7 +72,7 @@ public class RobotContainer {
     // m_intakeSubsystem = new IntakeSubsystem();
     // m_limeLightSubsystem = new LimeLightSubsystem();
     m_feedSubsystem = new FeedSubsystem();
-    // m_PneumaticsSubsystem = new PneumaticsSubsystem();
+    m_PneumaticsSubsystem = new PneumaticsSubsystem();
     // m_LEDSubsystem = new LEDSubsystem();
 
     // NamedCommands.registerCommand("set lights red",
@@ -265,10 +267,12 @@ public class RobotContainer {
 
     // Intake Extension & Climb Bindings
 
-    // m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
-    // Trigger intakePistonTrigger = new JoystickButton(m_buttonBoard,
-    // ControlConstants.kIntakeExtendButton);
-    // intakePistonTrigger.onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
+    m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
+    m_buttonBoard.button(ControlConstants.kIntakeExtendButton)
+      .onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
+
+    m_buttonBoard.button(ControlConstants.kIntakeRetractButton)
+      .onTrue(m_PneumaticsSubsystem.getInstantClimbRetractCommand());
 
     // m_intakeSubsystem.setDefaultCommand(m_intakeSubsystem.getDefaultCommand());
     // new JoystickButton(m_buttonBoard,
