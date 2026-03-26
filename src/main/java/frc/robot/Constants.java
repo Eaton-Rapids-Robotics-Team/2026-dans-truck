@@ -104,10 +104,16 @@ public final class Constants {
     public static final double kDefaultShooterSpeed = 0.55;
 
     // PID Constants for velocity control
-    public static final double kP = 0.00025;
-    public static final double kI = 0.00025;
-    public static final double kD = 0.000015;
-    public static final double kFF = 0.00018; // Feedforward for velocity control (tune this value)
+    public static final double kP = 0.0003; // Increased from 0.00025 for better response
+    public static final double kI = 0.0; // Start with 0, add if steady-state error exists
+    public static final double kD = 0.0; // Start with 0, add if overshoot occurs
+
+    // Feedforward for velocity control - THIS IS CRITICAL!
+    // For NEO Vortex: Max free speed ≈ 6784 RPM
+    // kFF = 1/max_rpm = 1/6784 ≈ 0.0001474
+    // We'll use a slightly higher value to account for losses
+    public static final double kFF = 0.0002; // Increased from 0.00018
+
     public static final double kIZone = 200.0; // Integral zone in RPM
   }
 

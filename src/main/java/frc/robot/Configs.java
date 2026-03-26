@@ -84,12 +84,15 @@ public final class Configs {
       rightShooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40).inverted(true);
 
       // Configure PID for velocity control on the right shooter
+      // Note: For velocity control, feedforward (kFF) is CRITICAL to reach target speeds
+      // kFF = 1 / max_velocity, so for 5700 max RPM: kFF ≈ 0.0001754
+      // However, we'll use a higher starting value and tune from there
       rightShooterConfig
           .closedLoop
           .pid(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD)
           .iZone(ShooterConstants.kIZone)
-          .outputRange(-1, 1);
-      // Note: Feedforward (kFF) can be tuned separately if needed
+          .outputRange(-1, 1)
+          .velocityFF(ShooterConstants.kFF); // Deprecated but necessary for velocity control
     }
   }
 
