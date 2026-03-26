@@ -43,17 +43,17 @@ public class FeedSubsystem extends SubsystemBase {
   }
 
   private void updateDashboard() {
-    m_table.getEntry("belt Speed").setDouble(m_beltSpeed);
-    m_table.getEntry("indexer Speed").setDouble(m_indexerSpeed);
-    m_table.getEntry("indexer Speed").setDouble(m_triggerSpeed);
+    m_table.getEntry("Belt Desired Speed").setDouble(m_beltSpeed);
+    m_table.getEntry("Indexer Desired Speed").setDouble(m_indexerSpeed);
+    m_table.getEntry("Trigger Desired Speed").setDouble(m_triggerSpeed);
 
-    m_table.getEntry("Real belt Speed").setDouble(m_belt.get());
-    m_table.getEntry("Real right indexer Speed").setDouble(m_indexerRight.get());
-    m_table.getEntry("Real left indexer Speed").setDouble(m_indexerLeft.get());
-    m_table.getEntry("Real Trigger Speed").setDouble(m_trigger.get());
+    m_table.getEntry("Belt Actual Speed").setDouble(m_belt.get());
+    m_table.getEntry("Indexer Right Actual Speed").setDouble(m_indexerRight.get());
+    m_table.getEntry("Indexer Left Actual Speed").setDouble(m_indexerLeft.get());
+    m_table.getEntry("Trigger Actual Speed").setDouble(m_trigger.get());
 
-    m_table.getEntry("Feed Running").setBoolean(m_beltSpeed > 0);
-    m_table.getEntry("Finger Running").setBoolean(m_indexerSpeed > 0);
+    m_table.getEntry("Belt Running").setBoolean(m_beltSpeed > 0);
+    m_table.getEntry("Indexer Running").setBoolean(m_indexerSpeed > 0);
     m_table.getEntry("Trigger Running").setBoolean(m_triggerSpeed > 0);
   }
 
