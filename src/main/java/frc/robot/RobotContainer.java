@@ -210,11 +210,11 @@ public class RobotContainer {
                 drive.getAllowAutoAimTrigger()));
 
     m_buttonBoard
-      .button(ControlConstants.kShooterSpeedUpButton)
-      .onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
+        .button(ControlConstants.kShooterSpeedUpButton)
+        .onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
     m_buttonBoard
-      .button(ControlConstants.kShooterSpeedDownButton)
-      .onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
+        .button(ControlConstants.kShooterSpeedDownButton)
+        .onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
 
     m_driverLeft
         .button(ControlConstants.kRevShootButton)
@@ -225,15 +225,15 @@ public class RobotContainer {
     // Pinky buttons - hardcoded shooter speeds for quick shooting
     // Left pinky: 75% speed (3750 RPM)
     m_driverLeft
-      .button(ControlConstants.kLeftPinkyButton)
-      .whileTrue(
-        m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kLeftPinkyShooterRPM));
+        .button(ControlConstants.kLeftPinkyButton)
+        .whileTrue(
+            m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kLeftPinkyShooterRPM));
 
     // Right pinky: 65% speed (3250 RPM)
     m_driverRight
-      .button(ControlConstants.kRightPinkyButton)
-      .whileTrue(
-        m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kRightPinkyShooterRPM));
+        .button(ControlConstants.kRightPinkyButton)
+        .whileTrue(
+            m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kRightPinkyShooterRPM));
 
     // Button board speed control
 
@@ -246,6 +246,11 @@ public class RobotContainer {
 
     m_feedSubsystem.setDefaultCommand(m_feedSubsystem.getDefaultCommand());
     m_driverLeft.button(ControlConstants.kFeedButton).whileTrue(m_feedSubsystem.getFeedCommand());
+
+    // Unclog button - runs indexer and trigger backwards, stops belt
+    m_driverLeft
+        .button(ControlConstants.kUnclogButton)
+        .whileTrue(m_feedSubsystem.getUnclogCommand());
 
     // m_buttonBoard
     //     .button(ControlConstants.kIntakeOnButton)

@@ -105,6 +105,22 @@ public class FeedSubsystem extends SubsystemBase {
   }
 
   /**
+   * Returns a command that runs the indexer and trigger in reverse to unclog, while keeping the
+   * belt stopped. Stops automatically when the button is released.
+   */
+  public Command getUnclogCommand() {
+    return startEnd(
+        () -> {
+          // Run indexer and trigger backwards, stop belt
+          m_beltSpeed = 0;
+          m_indexerSpeed = -FeedConstants.kIndexerSpeed;
+          m_triggerSpeed = -FeedConstants.kTriggerSpeed;
+        },
+        () -> getStopFeed() // End: Stop all when button released
+        );
+  }
+
+  /**
    * Returns a default command that keeps the feed system stopped. This ensures the feed doesn't run
    * unless commanded.
    */
