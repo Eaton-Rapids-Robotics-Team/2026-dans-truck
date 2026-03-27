@@ -240,7 +240,7 @@ public class DriveCommands {
               // Calculate angle to alliance goal
               double deltaX = targetX - currentPose.getTranslation().getX();
               double deltaY = targetY - currentPose.getTranslation().getY();
-              double targetAngle = Math.atan2(deltaY, deltaX);
+              double targetAngle = Math.atan2(deltaY, deltaX) + Math.PI;
 
               // Calculate angular speed using PID
               double omega =

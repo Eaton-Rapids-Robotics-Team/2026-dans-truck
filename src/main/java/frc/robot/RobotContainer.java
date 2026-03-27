@@ -28,7 +28,6 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSpark;
 import java.util.Optional;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -196,51 +195,48 @@ public class RobotContainer {
 
     // Rev shooter button - runs shooter at variable target RPM, with optional auto-aim if enabled
     m_driverLeft
-      .button(ControlConstants.kRevShootButton)
-      .whileTrue(
-        Commands.either(
-          // If auto-aim is enabled, run shooter + auto-aim
-          Commands.parallel(
-            DriveCommands.autoAimAtHub(
-              drive,
-              () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
-              () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)),
-            m_shooterSubsystem.getRevShooterVariableCommand()),
-          // Otherwise, just run shooter at variable target RPM
-          m_shooterSubsystem.getRevShooterVariableCommand(),
-          // Condition: check if auto-aim is enabled
-          drive.getAllowAutoAimTrigger()
-        )
-      );
+        .button(ControlConstants.kRevShootButton)
+        .whileTrue(
+            Commands.either(
+                // If auto-aim is enabled, run shooter + auto-aim
+                Commands.parallel(
+                    DriveCommands.autoAimAtHub(
+                        drive,
+                        () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+                        () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)),
+                    m_shooterSubsystem.getRevShooterVariableCommand()),
+                // Otherwise, just run shooter at variable target RPM
+                m_shooterSubsystem.getRevShooterVariableCommand(),
+                // Condition: check if auto-aim is enabled
+                drive.getAllowAutoAimTrigger()));
 
     m_driverLeft
-      .button(ControlConstants.kRevShootButton)
-      .onFalse(
-        m_shooterSubsystem
-          .getResetVariableSpeedCommand()); // Reset to default speed when we stop revving
+        .button(ControlConstants.kRevShootButton)
+        .onFalse(
+            m_shooterSubsystem
+                .getResetVariableSpeedCommand()); // Reset to default speed when we stop revving
 
     // Pinky buttons - hardcoded shooter speeds for quick shooting
     // Left pinky: 75% speed (3750 RPM)
     m_driverLeft
-      .button(ControlConstants.kLeftPinkyButton)
-      .whileTrue(
-        m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kLeftPinkyShooterRPM));
+        .button(ControlConstants.kLeftPinkyButton)
+        .whileTrue(
+            m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kLeftPinkyShooterRPM));
 
     // Right pinky: 65% speed (3250 RPM)
     m_driverRight
-      .button(ControlConstants.kRightPinkyButton)
-      .whileTrue(
-        m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kRightPinkyShooterRPM));
+        .button(ControlConstants.kRightPinkyButton)
+        .whileTrue(
+            m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kRightPinkyShooterRPM));
 
     // Button board speed control
 
     m_buttonBoard
-      .button(ControlConstants.kShooterSpeedUpButton)
-      .onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
+        .button(ControlConstants.kShooterSpeedUpButton)
+        .onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
     m_buttonBoard
-      .button(ControlConstants.kShooterSpeedDownButton)
-      .onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
-
+        .button(ControlConstants.kShooterSpeedDownButton)
+        .onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
 
     // Intake Motors & Feed Bindings
 
@@ -249,8 +245,8 @@ public class RobotContainer {
 
     // Unclog button - runs indexer and trigger backwards, stops belt
     m_driverLeft
-      .button(ControlConstants.kUnclogButton)
-      .whileTrue(m_feedSubsystem.getUnclogCommand());
+        .button(ControlConstants.kUnclogButton)
+        .whileTrue(m_feedSubsystem.getUnclogCommand());
 
     // m_buttonBoard
     //     .button(ControlConstants.kIntakeOnButton)
@@ -268,11 +264,24 @@ public class RobotContainer {
     // Intake Extension & Climb Bindings
 
     m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
-    m_buttonBoard.button(ControlConstants.kIntakeExtendButton)
-      .onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
 
-    m_buttonBoard.button(ControlConstants.kIntakeRetractButton)
-      .onTrue(m_PneumaticsSubsystem.getInstantClimbRetractCommand());
+    // Intake solenoid controls
+    m_buttonBoard
+        .button(ControlConstants.kIntakeExtendButton)
+        .onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
+
+    m_buttonBoard
+        .button(ControlConstants.kIntakeRetractButton)
+        .onTrue(m_PneumaticsSubsystem.getIntakeRetractCommand());
+
+    // Climb solenoid controls
+    m_buttonBoard
+        .button(ControlConstants.kClimbExtendButton)
+        .onTrue(m_PneumaticsSubsystem.getClimbExtendCommand());
+
+    m_buttonBoard
+        .button(ControlConstants.kClimbRetractButton)
+        .onTrue(m_PneumaticsSubsystem.getClimbRetractCommand());
 
     // m_intakeSubsystem.setDefaultCommand(m_intakeSubsystem.getDefaultCommand());
     // new JoystickButton(m_buttonBoard,

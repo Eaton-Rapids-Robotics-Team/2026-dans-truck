@@ -104,21 +104,21 @@ public final class Constants {
     public static final double kDefaultShooterSpeed = 0.55;
 
     // Variable shooter speed settings
-    public static final double kDefaultTargetRPM = 3000.0; // Default target velocity
+    public static final double kDefaultTargetRPM = 3400.0; // Default target velocity
     public static final double kShooterSpeedDelta = 250.0; // RPM change per increment/decrement
     public static final double kMinTargetRPM = 500.0; // Minimum target velocity
     public static final double kMaxTargetRPM = 6000.0; // Maximum target velocity
 
     // PID Constants for velocity control
-    public static final double kP = 0.0003; // Increased from 0.00025 for better response
-    public static final double kI = 0.0; // Start with 0, add if steady-state error exists
-    public static final double kD = 0.0; // Start with 0, add if overshoot occurs
+    public static final double kP = 0.0000; // Increased from 0.00025 for better response
+    public static final double kI = 0.0000; // Start with 0, add if steady-state error exists
+    public static final double kD = 0.0000; // Start with 0, add if overshoot occurs
 
     // Feedforward for velocity control - THIS IS CRITICAL!
     // For NEO Vortex: Max free speed ≈ 6784 RPM
     // kFF = 1/max_rpm = 1/6784 ≈ 0.0001474
     // We'll use a slightly higher value to account for losses
-    public static final double kFF = 0.0002; // Increased from 0.00018
+    public static final double kFF = 0.000155; // Increased from 0.00018
 
     public static final double kIZone = 200.0; // Integral zone in RPM
   }
@@ -259,7 +259,7 @@ public final class Constants {
     public static final double kSlewRateLimit = 3.0;
 
     // Button Board Controls
-    public static final int kIntakeExtendButton = ButtonBoardButtons.kButton2x1;
+    public static final int kIntakeExtendButton = ButtonBoardButtons.kButton1x2;
     public static final int kIntakeRetractButton = ButtonBoardButtons.kButton1x1;
     public static final int kClimbExtendButton = ButtonBoardButtons.kButton3x2;
     public static final int kClimbRetractButton = ButtonBoardButtons.kButton3x1;

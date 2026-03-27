@@ -71,12 +71,11 @@ public class Drive extends SubsystemBase {
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
   public Drive(
-    GyroIO gyroIO,
-    ModuleIO flModuleIO,
-    ModuleIO frModuleIO,
-    ModuleIO blModuleIO,
-    ModuleIO brModuleIO) 
-  {
+      GyroIO gyroIO,
+      ModuleIO flModuleIO,
+      ModuleIO frModuleIO,
+      ModuleIO blModuleIO,
+      ModuleIO brModuleIO) {
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0);
     modules[1] = new Module(frModuleIO, 1);
@@ -91,41 +90,38 @@ public class Drive extends SubsystemBase {
 
     // Configure AutoBuilder for PathPlanner
     AutoBuilder.configure(
-      this::getPose,
-      this::setPose,
-      this::getChassisSpeeds,
-      this::runVelocity,
-      new PPHolonomicDriveController(
-        new PIDConstants(5.0, 0.0, 0.0), // translation PID Controller
-        new PIDConstants(5.0, 0.0, 0.0)), // rotation PID Controller
-      ppConfig,
-      () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-      this
-    );
+        this::getPose,
+        this::setPose,
+        this::getChassisSpeeds,
+        this::runVelocity,
+        new PPHolonomicDriveController(
+            new PIDConstants(5.0, 0.0, 0.0), // translation PID Controller
+            new PIDConstants(5.0, 0.0, 0.0)), // rotation PID Controller
+        ppConfig,
+        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+        this);
 
     Pathfinding.setPathfinder(new LocalADStarAK());
 
     PathPlannerLogging.setLogActivePathCallback(
-      (activePath) -> {
-        Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-      }
-    );
+        (activePath) -> {
+          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
+        });
     PathPlannerLogging.setLogTargetPoseCallback(
-      (targetPose) -> {
-        Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-      }
-    );
+        (targetPose) -> {
+          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+        });
 
     // Configure SysId
     sysId =
-      new SysIdRoutine(
-        new SysIdRoutine.Config(
-          null,
-          null,
-          null,
-          (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
-        new SysIdRoutine.Mechanism(
-          (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+        new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,
+                null,
+                null,
+                (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+            new SysIdRoutine.Mechanism(
+                (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
   }
 
   @Override
@@ -166,9 +162,10 @@ public class Drive extends SubsystemBase {
       for (int moduleIndex = 0; moduleIndex < 4; moduleIndex++) {
         modulePositions[moduleIndex] = modules[moduleIndex].getOdometryPositions()[i];
         moduleDeltas[moduleIndex] =
-          new SwerveModulePosition(
-            modulePositions[moduleIndex].distanceMeters - lastModulePositions[moduleIndex].distanceMeters,
-            modulePositions[moduleIndex].angle);
+            new SwerveModulePosition(
+                modulePositions[moduleIndex].distanceMeters
+                    - lastModulePositions[moduleIndex].distanceMeters,
+                modulePositions[moduleIndex].angle);
         lastModulePositions[moduleIndex] = modulePositions[moduleIndex];
       }
 
