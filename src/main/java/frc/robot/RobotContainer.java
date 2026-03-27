@@ -267,13 +267,13 @@ public class RobotContainer {
     m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
 
     // Intake solenoid controls
-    m_buttonBoard
-        .button(ControlConstants.kIntakeExtendButton)
-        .onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
+    // m_buttonBoard
+    //     .button(ControlConstants.kIntakeExtendButton)
+    //     .onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
 
-    m_buttonBoard
-        .button(ControlConstants.kIntakeRetractButton)
-        .onTrue(m_PneumaticsSubsystem.getIntakeRetractCommand());
+    // m_buttonBoard
+    //     .button(ControlConstants.kIntakeRetractButton)
+    //     .onTrue(m_PneumaticsSubsystem.getIntakeRetractCommand());
 
     // Climb solenoid controls
     m_buttonBoard
