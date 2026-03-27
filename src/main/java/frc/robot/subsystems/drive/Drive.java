@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -54,6 +55,8 @@ public class Drive extends SubsystemBase {
   private final SysIdRoutine sysId;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
+
+  private boolean allowAutoAim = true;
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(moduleTranslations);
   private Rotation2d rawGyroRotation = Rotation2d.kZero;
@@ -92,11 +95,14 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+            new PIDConstants(5.0, 0.0, 0.0), // translation PID Controller
+            new PIDConstants(5.0, 0.0, 0.0)), // rotation PID Controller
         ppConfig,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
+
     Pathfinding.setPathfinder(new LocalADStarAK());
+
     PathPlannerLogging.setLogActivePathCallback(
         (activePath) -> {
           Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
@@ -128,6 +134,9 @@ public class Drive extends SubsystemBase {
     }
     odometryLock.unlock();
     updateOdometry();
+
+    // Log auto-aim status
+    Logger.recordOutput("Drive/AutoAimEnabled", allowAutoAim);
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {
@@ -315,6 +324,19 @@ public class Drive extends SubsystemBase {
   /** Returns the maximum angular speed in radians per sec. */
   public double getMaxAngularSpeedRadPerSec() {
     return maxSpeedMetersPerSec / driveBaseRadius;
+  }
+
+  public void toggleAutoAim() {
+    allowAutoAim = !allowAutoAim;
+    Logger.recordOutput("Drive/AutoAimEnabled", allowAutoAim);
+  }
+
+  public Command getToggleAutoAimCommand() {
+    return runOnce(() -> toggleAutoAim());
+  }
+
+  public Trigger getAllowAutoAimTrigger() {
+    return new Trigger(() -> allowAutoAim);
   }
 
   public void updateOdometry() {

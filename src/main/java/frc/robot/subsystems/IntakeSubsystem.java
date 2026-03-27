@@ -2,12 +2,14 @@ package frc.robot.subsystems;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs;
 import frc.robot.Constants.IntakeConstants;
@@ -15,7 +17,9 @@ import frc.robot.Constants.IntakeConstants;
 public class IntakeSubsystem extends SubsystemBase {
   private final SparkFlex m_intake =
       new SparkFlex(IntakeConstants.kIntakeCANId, MotorType.kBrushless);
-  private double m_intakeSpeed;
+  private final SparkClosedLoopController m_intakeController;
+
+  private double m_desiredVelocityRPM; // Target velocity in RPM
 
   private final NetworkTable m_table = NetworkTableInstance.getDefault().getTable("Intake");
 
@@ -24,79 +28,94 @@ public class IntakeSubsystem extends SubsystemBase {
         Configs.Intake.intakeConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
-    m_intakeSpeed = 0;
+
+    // Get the closed-loop controller for velocity control
+    m_intakeController = m_intake.getClosedLoopController();
+
+    m_desiredVelocityRPM = 0;
     updateDashboard();
   }
 
   private void updateDashboard() {
-    m_table.getEntry("Intake Speed").setDouble(m_intakeSpeed);
-    m_table.getEntry("Intake Running Forward").setBoolean(m_intakeSpeed > 0);
-    m_table.getEntry("Intake Running Backward").setBoolean(m_intakeSpeed < 0);
-    m_table.getEntry("Intake Stalled").setBoolean(isIntakeStalled());
+    m_table.getEntry("Desired Velocity RPM").setDouble(m_desiredVelocityRPM);
+    m_table.getEntry("Intake Running Forward").setBoolean(m_desiredVelocityRPM > 0);
+    m_table.getEntry("Intake Running Backward").setBoolean(m_desiredVelocityRPM < 0);
     m_table.getEntry("Intake Current").setDouble(m_intake.getOutputCurrent());
-    m_table.getEntry("Intake Velocity").setDouble(m_intake.getEncoder().getVelocity());
-  }
-
-  private void turnOnIntake() {
-    m_intakeSpeed = IntakeConstants.kDefaultIntakeSpeed;
-  }
-
-  private void turnOnIntakeReversed() {
-    m_intakeSpeed = -IntakeConstants.kDefaultIntakeSpeed;
-  }
-
-  private void turnOffIntake() {
-    m_intakeSpeed = 0;
-  }
-
-  public Command getIntakeOffCommand() {
-    return new InstantCommand(() -> this.turnOffIntake());
-  }
-
-  public Command getIntakeOnCommand() {
-    return new InstantCommand(() -> this.turnOnIntake());
-  }
-
-  public Command getIntakeOnReversedCommand() {
-    return new InstantCommand(() -> this.turnOnIntakeReversed());
-  }
-
-  public double getIntakeSpeed() {
-    return m_intakeSpeed;
-  }
-
-  public boolean isIntakeRunning() {
-    return m_intakeSpeed > 0;
-  }
-
-  public boolean isIntakeRunningReversed() {
-    return m_intakeSpeed < 0;
+    m_table.getEntry("Current Velocity RPM").setDouble(m_intake.getEncoder().getVelocity());
   }
 
   /**
-   * Checks if the intake motor is stalled by monitoring current and velocity. A motor is considered
-   * stalled if it's drawing high current but moving slowly.
+   * Set the desired intake velocity in RPM.
    *
-   * @return true if the motor is stalled, false otherwise
+   * @param velocityRPM The target velocity in RPM (positive for intake, negative for reverse)
    */
-  public boolean isIntakeStalled() {
-    // Get the current draw in amps
-    double current = m_intake.getOutputCurrent();
-    // Get the velocity in RPM
-    double velocity = Math.abs(m_intake.getEncoder().getVelocity());
+  public void setIntakeVelocity(double velocityRPM) {
+    m_desiredVelocityRPM = velocityRPM;
+  }
 
-    // Define stall thresholds
-    double currentThreshold = 40.0; // Amps - adjust based on your motor
-    double velocityThreshold = 100.0; // RPM - adjust based on expected speed
+  /**
+   * Get the current desired intake velocity in RPM.
+   *
+   * @return The desired velocity in RPM
+   */
+  public double getIntakeVelocity() {
+    return m_desiredVelocityRPM;
+  }
 
-    // Motor is stalled if current is high and velocity is low, and we're trying to run it
-    return (Math.abs(m_intakeSpeed) > 0.1)
-        && (current > currentThreshold)
-        && (velocity < velocityThreshold);
+  private void setIntakeOn() {
+    m_desiredVelocityRPM = IntakeConstants.kDefaultTargetRPM;
+  }
+
+  private void setIntakeOff() {
+    m_desiredVelocityRPM = 0;
+  }
+
+  private void setIntakeReversed() {
+    m_desiredVelocityRPM = -IntakeConstants.kDefaultTargetRPM;
+  }
+
+  public Command getSetIntakeOnCommand() {
+    return Commands.runOnce(() -> this.setIntakeOn(), this);
+  }
+
+  public Command getSetIntakeOffCommand() {
+    return Commands.runOnce(() -> this.setIntakeOff(), this);
+  }
+
+  public Command getSetIntakeReversedCommand() {
+    return Commands.runOnce(() -> this.setIntakeReversed(), this);
+  }
+
+  /**
+   * A factory function that creates a command to run the intake at a specified velocity. Will stop
+   * the motor when the command ends.
+   *
+   * @param velocityRPM The velocity in RPM to run the intake at.
+   * @return A Command that runs the intake at the specified velocity.
+   */
+  public Command getRunIntakeCommand(double velocityRPM) {
+    return Commands.startEnd(
+        () -> m_desiredVelocityRPM = velocityRPM, () -> m_desiredVelocityRPM = 0, this);
+  }
+
+  /**
+   * A factory function that creates a command to stop the intake.
+   *
+   * @return A Command that stops the intake.
+   */
+  public Command getStopIntakeCommand() {
+    return Commands.runOnce(() -> m_desiredVelocityRPM = 0, this);
   }
 
   public void periodic() {
-    m_intake.set(m_intakeSpeed);
+    // Use velocity control when desired velocity is set, otherwise stop
+    if (m_desiredVelocityRPM != 0) {
+      // Using setSetpoint with ControlType.kVelocity for closed-loop velocity control
+      m_intakeController.setSetpoint(m_desiredVelocityRPM, ControlType.kVelocity);
+    } else {
+      // Stop the motor
+      m_intake.set(0);
+    }
     updateDashboard();
   }
 }

@@ -14,14 +14,16 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.FeedSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PneumaticsSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -43,16 +45,12 @@ public class RobotContainer {
 
   // Subsystems
   private final Drive drive;
-  // private final ShooterSubsystem m_shooterSubsystem;
-  // private final FeedSubsystem m_feedSubsystem;
+  private final ShooterSubsystem m_shooterSubsystem;
+  private final FeedSubsystem m_feedSubsystem;
   // private final LimeLightSubsystem m_limeLightSubsystem;
-  // private final IntakeSubsystem m_intakeSubsystem;
-  // private final PneumaticsSubsystem m_PneumaticsSubsystem;
+  private final IntakeSubsystem m_intakeSubsystem;
+  private final PneumaticsSubsystem m_PneumaticsSubsystem;
 
-  // Controller
-  // private final CommandXboxController controller = new CommandXboxController(0);
-
-  // Auto chooser
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
@@ -69,16 +67,16 @@ public class RobotContainer {
 
     // we pass suppliers to the subsystems for any joystick inputs they need
     // this allows them to get the latest values when needed
-    // m_shooterSubsystem = new ShooterSubsystem();
+    m_shooterSubsystem = new ShooterSubsystem();
     // m_swerveSubsystem = new SwerveSubsystem();
-    // m_intakeSubsystem = new IntakeSubsystem();
+    m_intakeSubsystem = new IntakeSubsystem();
     // m_limeLightSubsystem = new LimeLightSubsystem();
-    // m_feedSubsystem = new FeedSubsystem();
-    // m_PneumaticsSubsystem = new PneumaticsSubsystem();
+    m_feedSubsystem = new FeedSubsystem();
+    m_PneumaticsSubsystem = new PneumaticsSubsystem();
     // m_LEDSubsystem = new LEDSubsystem();
 
     // NamedCommands.registerCommand("set lights red",
-    // m_LEDSubsystem.getChangeLightColorCommand(Color.kRed));// TODO make a turn command
+    // m_LEDSubsystem.getChangeLightColorCommand(Color.kRed)); // TODO make a turn command
     // NamedCommands.registerCommand("turn 45 CW",
     // m_swerveSubsystem.getTurnByDeltaAngleCommand(-50));
     // NamedCommands.registerCommand("Rev Shooter", m_shooterSubsystem.getRevShooterCommand(.5));
@@ -144,21 +142,10 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    // We separate the bindings configuration into its own method for clarity
-    // This is where controls are connected to commands
     configureBindings();
-
-    // Configure the button bindings
-    configureDriveControlsBindings();
   }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureDriveControlsBindings() {
+  private void configureBindings() {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
@@ -166,6 +153,9 @@ public class RobotContainer {
             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
             () -> -m_driverRight.getRawAxis(ControlConstants.kRotateJoystick)));
+
+    // Default command for shooter - ensures shooter stops when no button is held
+    m_shooterSubsystem.setDefaultCommand(m_shooterSubsystem.getDefaultCommand());
 
     // Robot-centric drive when button 2 is held (red trigger stage two on left stick)
     m_driverLeft
@@ -178,19 +168,16 @@ public class RobotContainer {
                 () -> -m_driverRight.getRawAxis(ControlConstants.kRotateJoystick)));
 
     // Lock to 0° when Trigger is held
-    m_driverLeft
-        .button(1)
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
-                () -> Rotation2d.kZero));
+    // m_driverLeft
+    //     .button(1)
+    //     .whileTrue(
+    //         DriveCommands.joystickDriveAtAngle(
+    //             drive,
+    //             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+    //             () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick),
+    //             () -> Rotation2d.kZero));
 
-    // Switch to X pattern when X button is pressed
-    // controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when B button is pressed
+    // Reset gyro to 0° when B button is pressed
     m_driverLeft
         .button(3)
         .onTrue(
@@ -201,63 +188,101 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Auto-aim at field center when auto-aim button is held
-    m_driverLeft
+    // Shooter Bindings
+
+    m_driverRight
         .button(ControlConstants.kAutoAimButton)
+        .onTrue(drive.getToggleAutoAimCommand()); // Toggle Auto Aim
+
+    // Rev shooter button - runs shooter at variable target RPM, with optional auto-aim if enabled
+    m_driverLeft
+        .button(ControlConstants.kRevShootButton)
         .whileTrue(
-            DriveCommands.autoAimAtFieldCenter(
-                drive,
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
-                () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)));
-  }
+            Commands.either(
+                // If auto-aim is enabled, run shooter + auto-aim
+                Commands.parallel(
+                    DriveCommands.autoAimAtHub(
+                        drive,
+                        () -> m_driverLeft.getRawAxis(ControlConstants.kMoveYJoystick),
+                        () -> m_driverLeft.getRawAxis(ControlConstants.kMoveXJoystick)),
+                    m_shooterSubsystem.getRevShooterVariableCommand()),
+                // Otherwise, just run shooter at variable target RPM
+                m_shooterSubsystem.getRevShooterVariableCommand(),
+                // Condition: check if auto-aim is enabled
+                drive.getAllowAutoAimTrigger()));
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
+    m_driverLeft
+        .button(ControlConstants.kRevShootButton)
+        .onFalse(
+            m_shooterSubsystem
+                .getResetVariableSpeedCommand()); // Reset to default speed when we stop revving
 
-  private void configureBindings() {
-    // LED Triggers
-    // m_LEDSubsystem.setDefaultCommand(m_LEDSubsystem.getChangeLightColorCommand(Constants.ColorConstants.OFF));
-    // Trigger inTakeOnTrigger = new Trigger(() -> m_intakeSubsystem.isIntakeRunning());
-    // inTakeOnTrigger
-    //   .whileTrue(m_LEDSubsystem.getChangeLightColorCommand(Constants.ColorConstants.GREEN))
-    //   .onFalse(m_LEDSubsystem.getChangeLightColorCommand(Constants.ColorConstants.OFF));
+    // Pinky buttons - hardcoded shooter speeds for quick shooting
+    // Left pinky: 75% speed (3750 RPM)
+    m_driverLeft
+        .button(ControlConstants.kLeftPinkyButton)
+        .whileTrue(
+            m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kLeftPinkyShooterRPM));
 
-    // Trigger on right stick: Reset field oriented zero (reset gyro)
-    // new JoystickButton(m_driverLeft,
-    // ControlConstants.kResetFieldButton).onTrue(m_swerveSubsystem.getResetGyroCommand());
+    // Right pinky: 65% speed (3250 RPM)
+    m_driverRight
+        .button(ControlConstants.kRightPinkyButton)
+        .whileTrue(
+            m_shooterSubsystem.getRunPIDcommand(() -> ControlConstants.kRightPinkyShooterRPM));
 
-    // // Shooter commands - pinky buttons are hardcoded, rev shoot button is variable
-    // m_shooterSubsystem.setDefaultCommand(m_shooterSubsystem.getDefaultCommand());
-    // new JoystickButton(m_driverRight, ControlConstants.kRevShootButton)
-    //   .whileTrue(m_shooterSubsystem.getRevShooterVariableCommand())
-    //   .onFalse(m_shooterSubsystem.getResetVariableSpeedCommand()); // Reset to 50% on release
-    // new JoystickButton(m_driverRight,
-    // ControlConstants.kRightPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.65));
-    // // Hardcoded 65%
-    // new JoystickButton(m_driverLeft,
-    // ControlConstants.kLeftPinkyButton).whileTrue(m_shooterSubsystem.getRevShooterCommand(0.75));
-    // // Hardcoded 75%
+    // Button board speed control
 
-    // // Unclog command - runs feed system and fingers in reverse
-    // new JoystickButton(m_driverLeft, ControlConstants.kUnclogButton)
-    //   .whileTrue(m_feedSubsystem.getUnclogFeedCommand());
+    m_buttonBoard
+        .button(ControlConstants.kShooterSpeedUpButton)
+        .onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
+    m_buttonBoard
+        .button(ControlConstants.kShooterSpeedDownButton)
+        .onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
 
-    // // Button board speed control
-    // new JoystickButton(m_buttonBoard,
-    // ControlConstants.kShooterSpeedUpButton).onTrue(m_shooterSubsystem.getIncrementSpeedCommand());
-    // new JoystickButton(m_buttonBoard,
-    // ControlConstants.kShooterSpeedDownButton).onTrue(m_shooterSubsystem.getDecrementSpeedCommand());
+    // Intake Motors & Feed Bindings
 
-    // m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
-    // Trigger intakePistonTrigger = new JoystickButton(m_buttonBoard,
-    // ControlConstants.kIntakeExtendButton);
-    // intakePistonTrigger.onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
+    m_feedSubsystem.setDefaultCommand(m_feedSubsystem.getDefaultCommand());
+    m_driverLeft.button(ControlConstants.kFeedButton).whileTrue(m_feedSubsystem.getFeedCommand());
+
+    // Unclog button - runs indexer and trigger backwards, stops belt
+    m_driverLeft
+        .button(ControlConstants.kUnclogButton)
+        .whileTrue(m_feedSubsystem.getUnclogCommand());
+
+    m_buttonBoard
+        .button(ControlConstants.kIntakeOnButton)
+        .onTrue(m_intakeSubsystem.getSetIntakeOnCommand());
+
+    m_buttonBoard
+        .button(ControlConstants.kIntakeOffButton)
+        .onTrue(m_intakeSubsystem.getSetIntakeOffCommand());
+
+    m_buttonBoard
+        .button(ControlConstants.kIntakeReverseButton)
+        .whileTrue(m_intakeSubsystem.getSetIntakeReversedCommand())
+        .onFalse(m_intakeSubsystem.getSetIntakeOffCommand());
+
+    // Intake Extension & Climb Bindings
+
+    m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
+
+    // Intake solenoid controls
+    // m_buttonBoard
+    //     .button(ControlConstants.kIntakeExtendButton)
+    //     .onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
+
+    // m_buttonBoard
+    //     .button(ControlConstants.kIntakeRetractButton)
+    //     .onTrue(m_PneumaticsSubsystem.getIntakeRetractCommand());
+
+    // Climb solenoid controls
+    m_buttonBoard
+        .button(ControlConstants.kClimbExtendButton)
+        .onTrue(m_PneumaticsSubsystem.getClimbExtendCommand());
+
+    m_buttonBoard
+        .button(ControlConstants.kClimbRetractButton)
+        .onTrue(m_PneumaticsSubsystem.getClimbRetractCommand());
 
     // m_intakeSubsystem.setDefaultCommand(m_intakeSubsystem.getDefaultCommand());
     // new JoystickButton(m_buttonBoard,
@@ -280,11 +305,6 @@ public class RobotContainer {
     // Trigger climbExtendTrigger = new JoystickButton(m_buttonBoard,
     // ControlConstants.kClimbExtendButton);
     // climbExtendTrigger.onTrue(m_PneumaticsSubsystem.getClimbExtendCommand());
-
-    // m_feedSubsystem.setDefaultCommand(m_feedSubsystem.getDefaultCommand());
-    // Trigger feedTrigger = new JoystickButton(m_driverRight, ControlConstants.kFeedButton);
-    // feedTrigger.whileTrue(m_feedSubsystem.getFeedCommand());
-
     // m_limeLightSubsystem.setDefaultCommand(m_limeLightSubsystem.getDefaultCommand());
     // Trigger limeTrigger = new JoystickButton(m_driverLeft, ControlConstants.kAutoAimButton);
     // limeTrigger.whileTrue(new LimelightCommand(m_limeLightSubsystem,m_swerveSubsystem));
@@ -408,5 +428,14 @@ public class RobotContainer {
       hubActive = true;
     }
     return hubActive;
+  }
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
   }
 } // End Class

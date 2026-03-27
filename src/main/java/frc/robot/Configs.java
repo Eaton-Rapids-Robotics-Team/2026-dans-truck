@@ -82,6 +82,20 @@ public final class Configs {
 
       // Right shooter is the leader - configure as needed
       rightShooterConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(40).inverted(true);
+
+      // Configure PID for velocity control on the right shooter
+      // Note: For velocity control, feedforward (kFF) is CRITICAL to reach target speeds
+      // kFF = 1 / max_velocity, so for 5700 max RPM: kFF ≈ 0.0001754
+      // However, we'll use a higher starting value and tune from there
+      rightShooterConfig
+          .closedLoop
+          .pid(ShooterConstants.kP, ShooterConstants.kI, ShooterConstants.kD)
+          .iZone(ShooterConstants.kIZone)
+          .outputRange(-1, 1);
+
+      // Configure feedforward using the newer API
+      // kV is the velocity gain (most important for flywheel velocity control)
+      rightShooterConfig.closedLoop.feedForward.kV(ShooterConstants.kFF);
     }
   }
 
@@ -93,20 +107,42 @@ public final class Configs {
           .idleMode(IdleMode.kCoast)
           .smartCurrentLimit(IntakeConstants.kCurrent)
           .inverted(true);
+
+      // Configure PID for velocity control
+      intakeConfig
+          .closedLoop
+          .pid(IntakeConstants.kP, IntakeConstants.kI, IntakeConstants.kD)
+          .iZone(IntakeConstants.kIZone)
+          .outputRange(-1, 1);
+
+      // Configure feedforward for velocity control
+      intakeConfig.closedLoop.feedForward.kV(IntakeConstants.kFF);
     }
   }
 
   public static final class Feed {
-    public static final SparkMaxConfig fingerLeftConfig = new SparkMaxConfig();
-    public static final SparkMaxConfig fingerRightConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig beltConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig indexerLeftConfig = new SparkMaxConfig();
+    public static final SparkMaxConfig indexerRightConfig = new SparkMaxConfig();
 
-    public static final SparkFlexConfig feedConfig = new SparkFlexConfig();
+    public static final SparkFlexConfig triggerConfig = new SparkFlexConfig();
 
     static {
-      fingerLeftConfig.follow(FeedConstants.kSorterRightCANId, true);
-      fingerRightConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
+      indexerLeftConfig.follow(FeedConstants.kIndexerRightCANId, true);
+      indexerRightConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(FeedConstants.kCurrent)
+          .inverted(false);
 
-      feedConfig.idleMode(IdleMode.kCoast).smartCurrentLimit(FeedConstants.kCurrent);
+      triggerConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(FeedConstants.kCurrent)
+          .inverted(false);
+
+      beltConfig
+          .idleMode(IdleMode.kCoast)
+          .smartCurrentLimit(FeedConstants.kCurrent)
+          .inverted(false);
     }
   }
 }

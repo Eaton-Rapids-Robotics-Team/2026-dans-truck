@@ -197,7 +197,7 @@ public class DriveCommands {
    * @param ySupplier Joystick Y axis supplier (left/right)
    * @return Command that aims at alliance goal while driving
    */
-  public static Command autoAimAtFieldCenter(
+  public static Command autoAimAtHub(
       Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
 
     // Create PID controller for rotation
@@ -240,7 +240,7 @@ public class DriveCommands {
               // Calculate angle to alliance goal
               double deltaX = targetX - currentPose.getTranslation().getX();
               double deltaY = targetY - currentPose.getTranslation().getY();
-              double targetAngle = Math.atan2(deltaY, deltaX);
+              double targetAngle = Math.atan2(deltaY, deltaX) + Math.PI;
 
               // Calculate angular speed using PID
               double omega =

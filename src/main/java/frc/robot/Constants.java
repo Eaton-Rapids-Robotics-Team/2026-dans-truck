@@ -38,19 +38,19 @@ public final class Constants {
         2 * Math.PI; // 180 degrees per second // TODO
 
     // Distance between front and back wheels on robot (meters)
-    public static final double kTrackWidth = 0.58; // 0.29 * 2
+    public static final double kTrackWidth = .52; // 0.29 * 2
     // Distance between left and right wheels on robot (meters)
     public static final double kWheelBase = 0.58; // 0.29 * 2
 
     // Swerve module positions relative to robot center (meters)
     public static final Translation2d kFrontLeftLocation =
-        new Translation2d(10.625 / 39.3701, 11.444 / 39.3701);
+        new Translation2d(kWheelBase / 2, kTrackWidth / 2);
     public static final Translation2d kFrontRightLocation =
-        new Translation2d(10.625 / 39.3701, -11.444 / 39.3701);
+        new Translation2d(kWheelBase / 2, -kTrackWidth / 2);
     public static final Translation2d kBackLeftLocation =
-        new Translation2d(-10.625 / 39.3701, 11.444 / 39.3701);
+        new Translation2d(-kWheelBase / 2, kTrackWidth / 2);
     public static final Translation2d kBackRightLocation =
-        new Translation2d(-10.625 / 39.3701, -11.444 / 39.3701);
+        new Translation2d(-kWheelBase / 2, -kTrackWidth / 2);
 
     public static final SwerveDriveKinematics kDriveKinematics =
         new SwerveDriveKinematics(
@@ -61,7 +61,7 @@ public final class Constants {
   }
 
   public static final class ModuleConstants {
-    public static final int kCurrentLimit = 40;
+    public static final int kCurrentLimit = 60;
 
     public static final double kWheelDiameterMeters = 0.1016; // 4 inches
     public static final double kDrivingMotorReduction =
@@ -102,6 +102,25 @@ public final class Constants {
 
     // Default shooter speed
     public static final double kDefaultShooterSpeed = 0.55;
+
+    // Variable shooter speed settings
+    public static final double kDefaultTargetRPM = 3400.0; // Default target velocity
+    public static final double kShooterSpeedDelta = 250.0; // RPM change per increment/decrement
+    public static final double kMinTargetRPM = 500.0; // Minimum target velocity
+    public static final double kMaxTargetRPM = 6000.0; // Maximum target velocity
+
+    // PID Constants for velocity control
+    public static final double kP = 0.0000; // Increased from 0.00025 for better response
+    public static final double kI = 0.0000; // Start with 0, add if steady-state error exists
+    public static final double kD = 0.0000; // Start with 0, add if overshoot occurs
+
+    // Feedforward for velocity control - THIS IS CRITICAL!
+    // For NEO Vortex: Max free speed ≈ 6784 RPM
+    // kFF = 1/max_rpm = 1/6784 ≈ 0.0001474
+    // We'll use a slightly higher value to account for losses
+    public static final double kFF = 0.000155; // Increased from 0.00018
+
+    public static final double kIZone = 200.0; // Integral zone in RPM
   }
 
   public static final class AutoConstants {
@@ -140,16 +159,36 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final int kIntakeCANId = 36;
     public static final double kDefaultIntakeSpeed = 1;
-    public static final int kCurrent = 30;
+    public static final int kCurrent = 40;
+
+    // Velocity PID control settings
+    // NEO Vortex max free speed is ~6784 RPM
+    public static final double kMaxTargetRPM = 6784.0; // Maximum velocity for NEO Vortex
+    public static final double kDefaultTargetRPM = 2000;
+
+    // PID Constants for velocity control
+    public static final double kP = 0.000; // Proportional gain
+    public static final double kI = 0.0; // Integral gain (start with 0)
+    public static final double kD = 0.0; // Derivative gain (start with 0)
+
+    // Feedforward for velocity control
+    // kFF = 1/max_rpm = 1/6784 ≈ 0.0001474
+    public static final double kFF = 0.0019; // Slightly higher to account for losses
+
+    public static final double kIZone = 200.0; // Integral zone in RPM
   }
 
   public static final class FeedConstants {
-    public static final double kDefaultFeedSpeed = .7;
-    public static final double kDefaultFingerSpeed = 1;
-    public static final int kFeedCanId = 35;
-    public static final int kSorterLeftCANId = 33;
-    public static final int kSorterRightCANId = 34;
-    public static final int kCurrent = 30;
+    public static final int kIndexerLeftCANId = 33;
+    public static final int kIndexerRightCANId = 34;
+    public static final int kBeltCANId = 37;
+    public static final int kTriggerCANId = 35;
+
+    public static final double kBeltSpeed = 0.25;
+    public static final double kIndexerSpeed = .6;
+    public static final double kTriggerSpeed = .75;
+
+    public static final int kCurrent = 40;
   }
 
   public static final class ControlConstants {
@@ -159,40 +198,59 @@ public final class Constants {
     public static final int kDriverRightPort = 2;
     public static final int kButtonBoardPort = 3;
 
-    public static final class FlightStickButtons {
-      public static final int redThumbButton = 3;
-      public static final int grayThumbButton = 20;
-      public static final int grayPinkyButton = 5;
-      public static final int grayTopButton = 4;
-      public static final int redTriggerStageOne = 1;
-      public static final int redTriggerStageTwo = 2;
+    private static final class FlightStickButtons {
+      static final int redThumbButton = 3;
+      static final int grayThumbButton = 20;
+      static final int grayPinkyButton = 5;
+      static final int grayTopButton = 4;
+      static final int redTriggerStageOne = 1;
+      static final int redTriggerStageTwo = 2;
 
       // these three buttons do not work
-      public static final int bottomLeftButton = 0;
-      public static final int bottomMiddleButton = 0;
-      public static final int bottomRightButton = 0;
+      static final int bottomLeftButton = 0;
+      static final int bottomMiddleButton = 0;
+      static final int bottomRightButton = 0;
 
-      public static final int topRightStickUp = 11;
-      public static final int topRightStickDown = 13;
-      public static final int topRightStickLeft = 14;
-      public static final int topRightStickRight = 12;
-      public static final int topRightStickMiddle = 15;
+      static final int topRightStickUp = 11;
+      static final int topRightStickDown = 13;
+      static final int topRightStickLeft = 14;
+      static final int topRightStickRight = 12;
+      static final int topRightStickMiddle = 15;
 
-      public static final int middleStickUp = 6;
-      public static final int middleStickDown = 8;
-      public static final int middleStickLeft = 9;
-      public static final int middleStickRight = 7;
-      public static final int middleStickMiddle = 10;
+      static final int middleStickUp = 6;
+      static final int middleStickDown = 8;
+      static final int middleStickLeft = 9;
+      static final int middleStickRight = 7;
+      static final int middleStickMiddle = 10;
 
       // all of these are in the POV section
-      public static final int topLeftStickUp = 0;
-      public static final int topLeftStickDown = 0;
-      public static final int topLeftStickLeft = 0;
-      public static final int topLeftStickRight = 0;
-      public static final int topLeftStickMiddle = 0;
+      static final int topLeftStickUp = 0;
+      static final int topLeftStickDown = 0;
+      static final int topLeftStickLeft = 0;
+      static final int topLeftStickRight = 0;
+      static final int topLeftStickMiddle = 0;
     }
 
-    public static final class ButtonBoardButtons {}
+    private static final class ButtonBoardButtons {
+      static final int kToggleSwitch = 11;
+      static final int kButton1x1 = 10;
+      static final int kButton2x1 = 8;
+      static final int kButton3x1 = 6;
+      static final int kButton4x1 = 4;
+      static final int kButton5x1 = 2;
+      static final int kButton1x2 = 9;
+      static final int kButton2x2 = 7;
+      static final int kButton3x2 = 5;
+      static final int kButton4x2 = 3;
+      static final int kButton5x2 = 1;
+      /*
+        button board layout
+        for var names bottom left is 1x1, top left 1x2, top right is 5x2, and bottom right is 5x1
+        Toggle Switch is 11
+        9 7 5 3 1
+        10 8 6 4 2
+      */
+    }
 
     // Joystick axis deadband
     public static final double kJoystickDeadband = 0.05;
@@ -200,32 +258,20 @@ public final class Constants {
     // Slew rate limiter - units per second (1/3 sec from 0 to 1)
     public static final double kSlewRateLimit = 3.0;
 
-    /*
-        button board
-        Toggle Switch is 11
-        9 7 5 3 1
-        10 8 6 4 2
-        The joystick buttons
-        1 = trigger first stage
-        2 = trigger second stage
-        3 = red thumb
-        20 = left gray thumb
-    */
-    public static final int kIntakeExtendButton = FlightStickButtons.middleStickLeft;
-    public static final int kIntakeRetractButton = FlightStickButtons.middleStickMiddle;
-    public static final int kClimbExtendButton = FlightStickButtons.grayPinkyButton;
-    public static final int kClimbRetractButton = FlightStickButtons.middleStickUp;
-    public static final int kIntakeOnButton = FlightStickButtons.redThumbButton;
-    public static final int kIntakeOffButton = FlightStickButtons.redTriggerStageOne;
-    public static final int kIntakeReverseButton = FlightStickButtons.grayTopButton;
-    public static final int kMaxOverdriveButton = FlightStickButtons.redTriggerStageTwo;
-    public static final int kShooterSpeedUpButton = FlightStickButtons.middleStickRight;
-    public static final int kShooterSpeedDownButton = FlightStickButtons.middleStickDown;
+    // Button Board Controls
+    public static final int kIntakeExtendButton = ButtonBoardButtons.kButton1x2;
+    public static final int kIntakeRetractButton = ButtonBoardButtons.kButton1x1;
+    public static final int kClimbExtendButton = ButtonBoardButtons.kButton3x2;
+    public static final int kClimbRetractButton = ButtonBoardButtons.kButton3x1;
+    public static final int kIntakeOnButton = ButtonBoardButtons.kButton4x2;
+    public static final int kIntakeOffButton = ButtonBoardButtons.kButton5x2;
+    public static final int kIntakeReverseButton = ButtonBoardButtons.kButton4x1;
+    public static final int kShooterSpeedUpButton = ButtonBoardButtons.kButton2x2;
+    public static final int kShooterSpeedDownButton = ButtonBoardButtons.kButton2x1;
 
     // left controller buttons
     public static final int kFieldToggleButton = FlightStickButtons.redTriggerStageOne;
     public static final int kResetFieldButton = FlightStickButtons.redThumbButton;
-    public static final int kAutoAimButton = FlightStickButtons.grayThumbButton;
     public static final int kLeftPinkyButton = FlightStickButtons.grayPinkyButton;
     public static final int kUnclogButton = FlightStickButtons.grayTopButton;
     public static final int kRobotCentricButton = FlightStickButtons.grayTopButton;
@@ -238,9 +284,14 @@ public final class Constants {
     public static final int kRevShootButton = FlightStickButtons.grayThumbButton;
     public static final int kFeedButton = FlightStickButtons.redTriggerStageOne;
     public static final int kRightPinkyButton = FlightStickButtons.grayPinkyButton;
+    public static final int kAutoAimButton = FlightStickButtons.grayThumbButton; // right stick
 
     // right controller joystick
     public static final int kRotateJoystick = 0;
+
+    // Hardcoded shooter speeds (in RPM) for pinky buttons
+    public static final double kLeftPinkyShooterRPM = 3750.0; // 75% of 5000 RPM
+    public static final double kRightPinkyShooterRPM = 3250.0; // 65% of 5000 RPM
   }
 
   public static final class ColorConstants {

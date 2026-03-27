@@ -8,97 +8,131 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs;
 import frc.robot.Constants.FeedConstants;
 
 public class FeedSubsystem extends SubsystemBase {
-  private final SparkFlex m_feeder = new SparkFlex(FeedConstants.kFeedCanId, MotorType.kBrushless);
+  private final SparkFlex m_trigger =
+      new SparkFlex(FeedConstants.kTriggerCANId, MotorType.kBrushless);
+  private final SparkMax m_indexerLeft =
+      new SparkMax(FeedConstants.kIndexerLeftCANId, MotorType.kBrushless);
+  private final SparkMax m_indexerRight =
+      new SparkMax(FeedConstants.kIndexerRightCANId, MotorType.kBrushless);
+  private final SparkMax m_belt = new SparkMax(FeedConstants.kBeltCANId, MotorType.kBrushless);
 
-  private final SparkMax m_sorterLeft =
-      new SparkMax(FeedConstants.kSorterLeftCANId, MotorType.kBrushless);
-  private final SparkMax m_sorterRight =
-      new SparkMax(FeedConstants.kSorterRightCANId, MotorType.kBrushless);
-
-  private double m_feedSpeed;
-  private double m_fingerSpeed;
+  private double m_beltSpeed = 0;
+  private double m_indexerSpeed = 0;
+  private double m_triggerSpeed = 0;
 
   private final NetworkTable m_table = NetworkTableInstance.getDefault().getTable("Feed");
 
   public FeedSubsystem() {
-    m_sorterLeft.configure(
-        Configs.Feed.fingerLeftConfig,
+    m_belt.configure(
+        Configs.Feed.beltConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_indexerLeft.configure(
+        Configs.Feed.indexerLeftConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
-    m_sorterRight.configure(
-        Configs.Feed.fingerRightConfig,
+    m_indexerRight.configure(
+        Configs.Feed.indexerRightConfig,
         ResetMode.kResetSafeParameters,
         PersistMode.kPersistParameters);
-    m_feeder.configure(
-        Configs.Feed.feedConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    m_feedSpeed = 0;
-    m_feedSpeed = 0;
-
-    updateDashboard();
+    m_trigger.configure(
+        Configs.Feed.triggerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   private void updateDashboard() {
-    m_table.getEntry("Feed Speed").setDouble(m_feedSpeed);
-    m_table.getEntry("Finger Speed").setDouble(m_fingerSpeed);
-    m_table.getEntry("Feed Running").setBoolean(m_feedSpeed > 0);
-    m_table.getEntry("Finger Running").setBoolean(m_fingerSpeed > 0);
+    m_table.getEntry("Belt Desired Speed").setDouble(m_beltSpeed);
+    m_table.getEntry("Indexer Desired Speed").setDouble(m_indexerSpeed);
+    m_table.getEntry("Trigger Desired Speed").setDouble(m_triggerSpeed);
+
+    m_table.getEntry("Belt Actual Speed").setDouble(m_belt.get());
+    m_table.getEntry("Indexer Right Actual Speed").setDouble(m_indexerRight.get());
+    m_table.getEntry("Indexer Left Actual Speed").setDouble(m_indexerLeft.get());
+    m_table.getEntry("Trigger Actual Speed").setDouble(m_trigger.get());
+
+    m_table.getEntry("Belt Running").setBoolean(m_beltSpeed > 0);
+    m_table.getEntry("Indexer Running").setBoolean(m_indexerSpeed > 0);
+    m_table.getEntry("Trigger Running").setBoolean(m_triggerSpeed > 0);
   }
 
-  public void setFeedSpeed(double newSpeed, double newFeederSpeed) {
-    m_feedSpeed = newSpeed;
-    m_fingerSpeed = newFeederSpeed;
+  public void setBeltSpeed(double newSpeed) {
+    m_beltSpeed = newSpeed;
   }
 
-  public double getFeedSpeed() {
-    return m_feedSpeed;
+  public void setIndexerSpeed(double newSpeed) {
+    m_indexerSpeed = newSpeed;
   }
 
-  // Command factory methods
-  private void startFeeding() {
-    m_feedSpeed = FeedConstants.kDefaultFeedSpeed;
-    m_fingerSpeed = FeedConstants.kDefaultFingerSpeed;
+  public void setTriggerSpeed(double newSpeed) {
+    m_triggerSpeed = newSpeed;
   }
 
-  private void stopFeeding() {
-    m_feedSpeed = 0;
-    m_fingerSpeed = 0;
+  public Command getBeltCommand() {
+    return runOnce(() -> setBeltSpeed(FeedConstants.kBeltSpeed));
   }
 
-  public Command getFeedCommand() {
-    return new StartEndCommand(() -> this.startFeeding(), () -> this.stopFeeding(), this);
+  public Command getIndexerCommand() {
+    return runOnce(() -> setIndexerSpeed(FeedConstants.kIndexerSpeed));
   }
 
-  public Command getFeedStopCommand() {
-    return new InstantCommand(() -> this.stopFeeding());
+  public Command getTriggerCommand() {
+    return runOnce(() -> setTriggerSpeed(FeedConstants.kTriggerSpeed));
+  }
+
+  public void getStopFeed() {
+    m_beltSpeed = 0;
+    m_indexerSpeed = 0;
+    m_triggerSpeed = 0;
+  }
+
+  public void setSpeeds() {
+    m_beltSpeed = FeedConstants.kBeltSpeed;
+    m_indexerSpeed = FeedConstants.kIndexerSpeed;
+    m_triggerSpeed = FeedConstants.kTriggerSpeed;
   }
 
   /**
-   * A factory function that creates a command to run the feed system in reverse to unclog. Will
-   * stop the motors when the command ends.
-   *
-   * @return A Command that runs the feed system in reverse.
+   * Returns a command that runs the feed system while held. The feed stops automatically when the
+   * command ends (button released).
    */
-  public Command getUnclogFeedCommand() {
-    return new StartEndCommand(
+  public Command getFeedCommand() {
+    return startEnd(
+        () -> setSpeeds(), // Start: Set speeds when button pressed
+        () -> getStopFeed() // End: Stop when button released
+        );
+  }
+
+  /**
+   * Returns a command that runs the indexer and trigger in reverse to unclog, while keeping the
+   * belt stopped. Stops automatically when the button is released.
+   */
+  public Command getUnclogCommand() {
+    return startEnd(
         () -> {
-          m_feedSpeed = -FeedConstants.kDefaultFeedSpeed;
-          m_fingerSpeed = -FeedConstants.kDefaultFingerSpeed;
+          // Run indexer and trigger backwards, stop belt
+          m_beltSpeed = 0;
+          m_indexerSpeed = -FeedConstants.kIndexerSpeed;
+          m_triggerSpeed = -FeedConstants.kTriggerSpeed;
         },
-        () -> this.stopFeeding(),
-        this);
+        () -> getStopFeed() // End: Stop all when button released
+        );
+  }
+
+  /**
+   * Returns a default command that keeps the feed system stopped. This ensures the feed doesn't run
+   * unless commanded.
+   */
+  public Command getDefaultCommand() {
+    return run(() -> getStopFeed());
   }
 
   public void periodic() {
-    m_feeder.set(-m_feedSpeed);
-    m_sorterRight.set(m_fingerSpeed);
+    m_belt.set(m_beltSpeed);
+    m_indexerRight.set(m_indexerSpeed);
+    m_trigger.set(m_triggerSpeed);
+
     updateDashboard();
   }
 }

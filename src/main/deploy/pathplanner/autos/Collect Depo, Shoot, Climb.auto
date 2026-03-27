@@ -1,0 +1,80 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Open Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Rev Shooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Collect Depo"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Off Depo, Turn to Shoot"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Run Feed"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Extend Climb"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depo Shoot to Climb"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Retract Climb"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

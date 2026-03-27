@@ -8,16 +8,15 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PneumaticsSubsystem extends SubsystemBase {
   private final Compressor compressor = new Compressor(2, PneumaticsModuleType.REVPH);
 
   private final DoubleSolenoid m_climbSolenoid =
-      new DoubleSolenoid(2, PneumaticsModuleType.REVPH, 7, 5);
+      new DoubleSolenoid(2, PneumaticsModuleType.REVPH, 0, 1);
   private final DoubleSolenoid m_intakSolenoid =
-      new DoubleSolenoid(2, PneumaticsModuleType.REVPH, 9, 8);
+      new DoubleSolenoid(2, PneumaticsModuleType.REVPH, 14, 15);
 
   // Member variables to store desired solenoid states
   private Value m_desiredClimbState = Value.kOff;
@@ -60,23 +59,15 @@ public class PneumaticsSubsystem extends SubsystemBase {
   }
 
   public Command getClimbExtendCommand() {
-    return new StartEndCommand(() -> this.extendClimb(), () -> this.turnOffClimb(), this);
+    return new InstantCommand(() -> this.extendClimb(), this);
   }
 
   public Command getClimbRetractCommand() {
-    return new StartEndCommand(() -> this.retractClimb(), () -> this.turnOffClimb(), this);
-  }
-
-  public Command getInstantClimbExtendCommand() {
-    return new InstantCommand(() -> this.extendClimb());
-  }
-
-  public Command getInstantClimbRetractCommand() {
-    return new InstantCommand(() -> this.retractClimb());
+    return new InstantCommand(() -> this.retractClimb(), this);
   }
 
   public Command getClimbOffCommand() {
-    return new InstantCommand(() -> this.turnOffClimb());
+    return new InstantCommand(() -> this.turnOffClimb(), this);
   }
 
   // Command factory methods for intake pneumatics
@@ -93,15 +84,25 @@ public class PneumaticsSubsystem extends SubsystemBase {
   }
 
   public Command getIntakeExtendCommand() {
-    return new StartEndCommand(() -> this.extendIntake(), () -> this.turnOffIntake(), this);
+    return new InstantCommand(() -> this.extendIntake(), this);
   }
 
   public Command getIntakeRetractCommand() {
-    return new StartEndCommand(() -> this.retractIntake(), () -> this.turnOffIntake(), this);
+    return new InstantCommand(() -> this.retractIntake(), this);
   }
 
   public Command getIntakeOffCommand() {
-    return new InstantCommand(() -> this.turnOffIntake());
+    return new InstantCommand(() -> this.turnOffIntake(), this);
+  }
+
+  // Default command to maintain current state
+  public Command getDefaultCommand() {
+    return this.run(
+        () -> {
+          // The periodic method handles setting solenoids, this just keeps the subsystem scheduled
+          this.turnOffClimb();
+          this.turnOffIntake();
+        });
   }
 
   public void periodic() {
