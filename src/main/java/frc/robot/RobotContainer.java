@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControlConstants;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.FeedSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PneumaticsSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.drive.Drive;
@@ -47,7 +48,7 @@ public class RobotContainer {
   private final ShooterSubsystem m_shooterSubsystem;
   private final FeedSubsystem m_feedSubsystem;
   // private final LimeLightSubsystem m_limeLightSubsystem;
-  // private final IntakeSubsystem m_intakeSubsystem;
+  private final IntakeSubsystem m_intakeSubsystem;
   private final PneumaticsSubsystem m_PneumaticsSubsystem;
 
   // Dashboard inputs
@@ -68,7 +69,7 @@ public class RobotContainer {
     // this allows them to get the latest values when needed
     m_shooterSubsystem = new ShooterSubsystem();
     // m_swerveSubsystem = new SwerveSubsystem();
-    // m_intakeSubsystem = new IntakeSubsystem();
+    m_intakeSubsystem = new IntakeSubsystem();
     // m_limeLightSubsystem = new LimeLightSubsystem();
     m_feedSubsystem = new FeedSubsystem();
     m_PneumaticsSubsystem = new PneumaticsSubsystem();
@@ -248,18 +249,18 @@ public class RobotContainer {
         .button(ControlConstants.kUnclogButton)
         .whileTrue(m_feedSubsystem.getUnclogCommand());
 
-    // m_buttonBoard
-    //     .button(ControlConstants.kIntakeOnButton)
-    //     .onTrue(m_intakeSubsystem.getSetIntakeOnCommand());
+    m_buttonBoard
+        .button(ControlConstants.kIntakeOnButton)
+        .onTrue(m_intakeSubsystem.getSetIntakeOnCommand());
 
-    // m_buttonBoard
-    //     .button(ControlConstants.kIntakeOffButton)
-    //     .onTrue(m_intakeSubsystem.getSetIntakeOffCommand());
+    m_buttonBoard
+        .button(ControlConstants.kIntakeOffButton)
+        .onTrue(m_intakeSubsystem.getSetIntakeOffCommand());
 
-    // m_buttonBoard
-    //     .button(ControlConstants.kIntakeReverseButton)
-    //     .whileTrue(m_intakeSubsystem.getSetIntakeReversedCommand())
-    //     .onFalse(m_intakeSubsystem.getSetIntakeOffCommand());
+    m_buttonBoard
+        .button(ControlConstants.kIntakeReverseButton)
+        .whileTrue(m_intakeSubsystem.getSetIntakeReversedCommand())
+        .onFalse(m_intakeSubsystem.getSetIntakeOffCommand());
 
     // Intake Extension & Climb Bindings
 
