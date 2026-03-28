@@ -8,6 +8,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
@@ -75,8 +76,20 @@ public class RobotContainer {
     m_PneumaticsSubsystem = new PneumaticsSubsystem();
     // m_LEDSubsystem = new LEDSubsystem();
 
-    // NamedCommands.registerCommand("set lights red",
-    // m_LEDSubsystem.getChangeLightColorCommand(Color.kRed)); // TODO make a turn command
+    NamedCommands.registerCommand("Open Intake", m_PneumaticsSubsystem.getIntakeExtendCommand());
+
+    NamedCommands.registerCommand("Rev Shooter", m_shooterSubsystem.getRunPIDcommand(() -> 3250));
+
+    NamedCommands.registerCommand("Rev Off", m_shooterSubsystem.getRunPIDcommand(() -> 0));
+
+    NamedCommands.registerCommand("Run Feed", m_feedSubsystem.getFeedCommand());
+
+    NamedCommands.registerCommand("Intake On", m_intakeSubsystem.getRunIntakeCommand(2500));
+
+    NamedCommands.registerCommand("Intake Off", m_intakeSubsystem.getRunIntakeCommand(2500));
+
+    NamedCommands.registerCommand("Extend Climb", m_shooterSubsystem.getRunPIDcommand(() -> 3250));
+    // TODO make a turn command
     // NamedCommands.registerCommand("turn 45 CW",
     // m_swerveSubsystem.getTurnByDeltaAngleCommand(-50));
     // NamedCommands.registerCommand("Rev Shooter", m_shooterSubsystem.getRevShooterCommand(.5));
@@ -190,12 +203,12 @@ public class RobotContainer {
 
     // Shooter Bindings
 
-    m_driverRight
+    m_driverLeft
         .button(ControlConstants.kAutoAimButton)
         .onTrue(drive.getToggleAutoAimCommand()); // Toggle Auto Aim
 
     // Rev shooter button - runs shooter at variable target RPM, with optional auto-aim if enabled
-    m_driverLeft
+    m_driverRight
         .button(ControlConstants.kRevShootButton)
         .whileTrue(
             Commands.either(
@@ -242,7 +255,7 @@ public class RobotContainer {
     // Intake Motors & Feed Bindings
 
     m_feedSubsystem.setDefaultCommand(m_feedSubsystem.getDefaultCommand());
-    m_driverLeft.button(ControlConstants.kFeedButton).whileTrue(m_feedSubsystem.getFeedCommand());
+    m_driverRight.button(ControlConstants.kFeedButton).whileTrue(m_feedSubsystem.getFeedCommand());
 
     // Unclog button - runs indexer and trigger backwards, stops belt
     m_driverLeft
@@ -267,13 +280,13 @@ public class RobotContainer {
     m_PneumaticsSubsystem.setDefaultCommand(m_PneumaticsSubsystem.getDefaultCommand());
 
     // Intake solenoid controls
-    // m_buttonBoard
-    //     .button(ControlConstants.kIntakeExtendButton)
-    //     .onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
+    m_buttonBoard
+        .button(ControlConstants.kIntakeExtendButton)
+        .onTrue(m_PneumaticsSubsystem.getIntakeExtendCommand());
 
-    // m_buttonBoard
-    //     .button(ControlConstants.kIntakeRetractButton)
-    //     .onTrue(m_PneumaticsSubsystem.getIntakeRetractCommand());
+    m_buttonBoard
+        .button(ControlConstants.kIntakeRetractButton)
+        .onTrue(m_PneumaticsSubsystem.getIntakeRetractCommand());
 
     // Climb solenoid controls
     m_buttonBoard

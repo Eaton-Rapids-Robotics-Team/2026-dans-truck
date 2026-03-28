@@ -194,9 +194,9 @@ public final class Constants {
   public static final class ControlConstants {
 
     // Joystick USB ports
-    public static final int kDriverLeftPort = 1;
-    public static final int kDriverRightPort = 2;
-    public static final int kButtonBoardPort = 3;
+    public static final int kDriverLeftPort = 0;
+    public static final int kDriverRightPort = 1;
+    public static final int kButtonBoardPort = 2;
 
     private static final class FlightStickButtons {
       static final int redThumbButton = 3;
@@ -270,11 +270,11 @@ public final class Constants {
     public static final int kShooterSpeedDownButton = ButtonBoardButtons.kButton2x1;
 
     // left controller buttons
-    public static final int kFieldToggleButton = FlightStickButtons.redTriggerStageOne;
+    public static final int kAutoAimButton = FlightStickButtons.grayThumbButton;
     public static final int kResetFieldButton = FlightStickButtons.redThumbButton;
     public static final int kLeftPinkyButton = FlightStickButtons.grayPinkyButton;
     public static final int kUnclogButton = FlightStickButtons.grayTopButton;
-    public static final int kRobotCentricButton = FlightStickButtons.grayTopButton;
+    public static final int kRobotCentricButton = FlightStickButtons.redTriggerStageOne;
 
     // left controller joystick
     public static final int kMoveXJoystick = 0; // side to side = axis 0
@@ -284,7 +284,6 @@ public final class Constants {
     public static final int kRevShootButton = FlightStickButtons.grayThumbButton;
     public static final int kFeedButton = FlightStickButtons.redTriggerStageOne;
     public static final int kRightPinkyButton = FlightStickButtons.grayPinkyButton;
-    public static final int kAutoAimButton = FlightStickButtons.grayThumbButton; // right stick
 
     // right controller joystick
     public static final int kRotateJoystick = 0;
